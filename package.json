@@ -1,0 +1,26 @@
+{
+  "name": "TCPBuddy",
+  "version": "0.0.0",
+  "description": "Lightweight tcp framework",
+  "main": "index.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Gelidus/buddy.coffee.git"
+  },
+  "keywords": [
+    "tcp",
+    "framework"
+  ],
+  "author": "Gelidus",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/Gelidus/buddy.coffee/issues"
+  },
+  "dependencies": {
+    "async": "~0.9.0",
+    "sequelize": "~2.0.0-rc1"
+  }
+}
