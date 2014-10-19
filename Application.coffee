@@ -1,10 +1,10 @@
 Async = require 'async'
 global.Injector = require './di/injector' # establish injector
-Configuration = require './config/configuration'
+Configuration = require './config/Configuration'
 
-Services = require './services/services'
-Router = require './routing/router'
-Server = require './server/server'
+Services = require './services/Services'
+Router = require './routing/Router'
+Server = require './server/Server'
 
 module.exports = class Application extends Server
 
