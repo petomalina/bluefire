@@ -48,8 +48,8 @@ module.exports = class Services
 
   addModel: (name, modelOptions) =>
 
-    for name, type of modelOptions.attributes # set attributes to module specifig attributes
-      modelOptions.attributes[name] = @adapterModule[modelOptions.attributes[name]]
+    for attribute, type of modelOptions.attributes # set attributes to module specifig attributes
+      modelOptions.attributes[attribute] = @adapterModule[modelOptions.attributes[attribute]]
 
     name = name.split('.')[0] # get the first word
     args = Injector.resolve @adapter.define, modelOptions
