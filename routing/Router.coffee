@@ -17,7 +17,7 @@ module.exports = class Router
         continue # this controller already exists
 
       # add controller - require and load
-      controller = require 'Application/Controllers/' + path.controller
+      controller = require 'application/controllers/' + path.controller
 
       @controllers[path.controller] = controller
       console.log 'New controller registered : [' + path.controller + ']'
