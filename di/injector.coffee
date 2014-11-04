@@ -3,7 +3,10 @@ module.exports = {
   dependencies: { }
 
   register: (name, dependency) ->
-    @dependencies['$' + name] = dependency
+    @dependencies[name] = dependency
+
+  get: (name) ->
+    return @dependencies[name]
 
   injectWithDependencies: (func, deps) ->
     object = new func
@@ -16,6 +19,9 @@ module.exports = {
     func.apply object, positionedDependencies
     return object
 
+  newInstance: (buddyObject, constructorArguments = []) ->
+    if not constructorArguments instanceof Array and typeof constructorArguments is "object"
+      constructorArguments = @resolve buddyObject, constructorArguments
 
   inject: (func) =>
     dependencies = @resolve func
@@ -28,8 +34,6 @@ module.exports = {
     for i in [0..args.length - 1]
 
       dependency = args[i].trim()
-      if dependency[0] is '$'
-        dependency = args[i].substring(1) # $ character in injection
 
       if dependencyList is null
         if not @dependencies[dependency]?
