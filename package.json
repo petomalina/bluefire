@@ -1,6 +1,6 @@
 {
-  "name": "TCPBuddy",
-  "version": "0.0.0",
+  "name": "bluefire",
+  "version": "0.0.11a",
   "description": "Lightweight tcp framework",
   "main": "index.coffee",
   "scripts": {
@@ -8,11 +8,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:Gelidus/buddy.coffee.git"
+    "url": "https://github.com/Gelidus/buddy.coffee.git"
   },
   "keywords": [
     "tcp",
-    "framework"
+    "framework",
+    "lightweight",
+    "buddy"
   ],
   "author": "Gelidus",
   "license": "BSD-2-Clause",
