@@ -46,3 +46,6 @@ module.exports = class Router
         path.action(session, data)
       else
         controller[path.action](session, data)
+
+  getController: (name) ->
+    return @controllers[name]
