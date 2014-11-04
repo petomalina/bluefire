@@ -4,12 +4,14 @@ Configuration = require './config/Configuration'
 
 Services = require './services/Services'
 Router = require './routing/Router'
+TaskManager = require './task/TaskManager'
 Server = require './server/Server'
 
 module.exports = class Application extends Server
 
   constructor: (callback) ->
     global.Application = @
+    Injector.register('$Application', @) # add this object to injector
 
     connectionConfiguration = new Configuration()
     connectionConfiguration.load 'application/configs/connections'
@@ -23,6 +25,10 @@ module.exports = class Application extends Server
     super(globalConfiguration) # initialize server beneath the application
 
     Async.series([
+      (callback) =>
+        @taskManager = new TaskManager()
+        @taskManager.install(callback)
+
       (callback) =>
         @services = new Services(connectionConfiguration)
         @services.install(callback)
@@ -46,21 +52,26 @@ module.exports = class Application extends Server
   controller: (name, controller) ->
     @router.controller name, controller
 
+  getController: (name) ->
+    @router.getController(name)
+
   run: () ->
     super # run the server
 
-  onConnect: (session) =>
+  onConnect: (session) ->
+    console.log 'connect'
     # virtual method - override this when needed
 
-  _onDisconnect: (session) =>
-    @onDisconnect(session)
+  _onDisconnect: (session) ->
+    console.log 'Client disconnected'
+    session.removeAllTasks() # remove all current tasks on the session
+    #@onDisconnect(session)
 
   onDisconnect: (session) =>
     # virtual method - override this when needed
 
   _onData: (session, packetName, data) =>
     @router.call packetName, session, data
-
     @onData(session, packetName, data)
 
   onData: (session, packetName, data) =>
