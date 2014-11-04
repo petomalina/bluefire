@@ -21,10 +21,10 @@ module.exports = class Services
             console.log err
           else
             console.log 'Database authentication successfull ...'
-          
-          callback(null, 1)
 
           global.Database = @adapter # give it global meaning
+
+          callback(null, 1)
 
       (callback) => # cache setup
         callback(null, 2)
