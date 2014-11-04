@@ -8,6 +8,7 @@ module.exports = class ClientSession extends Session
 
   constructor: (socket) ->
     @socket = socket
+    @tasks = { }
 
     socket.session = @
     socket.getSession = () =>
@@ -27,5 +28,22 @@ module.exports = class ClientSession extends Session
       @afterSend packetName, data if @afterSend?
       callback() if callback?
 
-  write: (data) ->
+  write: (data) =>
     @socket.write data
+
+  addTask: (name) =>
+    if @tasks[name]?
+      @removeTask(name)
+
+    @tasks[name] = Injector.get('$TaskManager').perform('Ping', @)
+
+  removeTask: (name) =>
+    if @tasks[name]?
+      console.log "Removing task #{name}"
+      @tasks[name].stop()
+
+    delete @tasks[name]
+
+  removeAllTasks: () =>
+    for name, task of @tasks
+      @removeTask(name)
