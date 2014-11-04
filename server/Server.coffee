@@ -51,15 +51,21 @@ module.exports = class Server
         @parser.parse data, (packetName, parsedData) =>
           @_onData(session, packetName, parsedData)
 
-      socket.on 'disconnect', () ->
-        self._onDisconnect(@getSession())
+      socket.on 'disconnect', () =>
+        @_onDisconnect session
+
+      socket.on 'error', () =>
+        console.log 'Error on socket, disconnecting ...'
+        #socket.destroy()
+        @_onDisconnect session
 
       @onConnect(session)
 
-  onConnect: (session) =>
+  onConnect: (session) ->
+    console.log 'connect'
     # virtual method - override this when needed
 
-  _onDisconnect: (socket) =>
+  _onDisconnect: (socket) ->
     # virtual method - override this when needed
 
   _onData: (socket, packetName, data) =>
