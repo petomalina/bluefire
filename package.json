@@ -1,6 +1,6 @@
 {
   "name": "bluefire",
-  "version": "0.0.11a",
+  "version": "0.0.12a",
   "description": "Lightweight tcp framework",
   "main": "index.coffee",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Gelidus/buddy.coffee.git"
+    "url": "https://github.com/Gelidus/bluefire.git"
   },
   "keywords": [
     "tcp",
@@ -19,7 +19,7 @@
   "author": "Gelidus",
   "license": "BSD-2-Clause",
   "bugs": {
-    "url": "https://github.com/Gelidus/buddy.coffee/issues"
+    "url": "https://github.com/Gelidus/bluefire/issues"
   },
   "dependencies": {
     "async": "~0.9.0",
