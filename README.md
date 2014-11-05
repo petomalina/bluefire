@@ -1,39 +1,10 @@
-tcpbuddy
+Bluefire
 ========
 
 Lightweight TCP framework for node.js
 
-While using tcpbuddy structured approach, you need to:
+This framework is under construction, ETA 1 month to alpha release with first tools.
 
-1.) Create application folder in node_modules and subfolders
-  - configs
-  - controllers
-  - models
-  - policies
-  - tasks
-  
-2.) You need to create application.coffe/js in the folder
+There are no public exmaples because framework is now used on private projects ( while still developing first version )
 
-```
-Base = require 'tcpbuddy/Application'
-
-module.exports = class Application extends Base
-
-  constructor: (callback) ->
-    super(callback)
-
-  run: () ->
-    super
-```
-    
-You also need app.coffee starting point:
-
-```
-Application = require 'application/application'
-
-app = new Application (err, results) ->
-  if err?
-    console.log err
-  else
-    app.run()
-```
+Thank you for your patience!
