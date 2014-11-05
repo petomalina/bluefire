@@ -31,9 +31,9 @@ module.exports = class Server
       continue if name is 'head'
 
       condition = null
-      if packetStructure[@parser.conditionField]?
+      if packetStructure[@parser.conditionField]? # register additional condition to parser
         condition = packetStructure[@parser.conditionField]
-        delete packetStructure[@parser.conditionField]
+        #delete packetStructure[@parser.conditionField]
 
       @parser.registerPacket(name, condition).add(packetStructure)
 
