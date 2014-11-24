@@ -50,6 +50,8 @@ module.exports = class Services
               console.log err if err
               console.log 'Services initialized'
               callback(null, 3)
+          else
+            callback(null, 3) # skip the sync
 
     ], callback)
 
