@@ -40,7 +40,7 @@ module.exports = class Services
 
           sync = @config.get 'sync' # database synchronization
           if sync? and sync isnt false
-            console.log 'Syncing database'
+            console.log "Syncing database #{sync}"
             syncOptions = {}
 
             if @config.get 'sync' is 'force'
