@@ -38,11 +38,18 @@ module.exports = class Services
 
             @addModel moduleName, module
 
-          console.log 'Syncing database'
-          @adapter.sync().done (err, result) ->
-            console.log err if err
-            console.log 'Services initialized'
-            callback(null, 3)
+          sync = @config.get 'sync' # database synchronization
+          if sync? and sync isnt false
+            console.log 'Syncing database'
+            syncOptions = {}
+
+            if @config.get 'sync' is 'force'
+              syncOptions.force = true
+
+            @adapter.sync(syncOptions).done (err, result) ->
+              console.log err if err
+              console.log 'Services initialized'
+              callback(null, 3)
 
     ], callback)
 
