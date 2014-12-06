@@ -1,5 +1,7 @@
+global.Injector = require './di/Injector' # establish injector
+require './BuddyObject' # require here for global definition
+
 Async = require 'async'
-global.Injector = require './di/injector' # establish injector
 Configuration = require './config/Configuration'
 
 Services = require './services/Services'
@@ -11,7 +13,7 @@ module.exports = class Application extends Server
 
   constructor: (callback) ->
     global.Application = @
-    Injector.register('$Application', @) # add this object to injector
+    Injector.addService('$app', @) # add this object to injector
 
     connectionConfiguration = new Configuration()
     connectionConfiguration.load 'application/configs/connections'
@@ -19,8 +21,15 @@ module.exports = class Application extends Server
     routesConfiguration = new Configuration()
     routesConfiguration.load 'application/configs/routes'
 
-    globalConfiguration = new Configuration()
+    globalConfiguration = new Configuration() # global configuration
     globalConfiguration.load 'application/configs/config'
+
+    if globalConfiguration.get "configuration" is "debug"
+      global.debug = (debugText) ->
+        console.log debugText
+    else
+      global.debug = () ->
+        # nothing here
 
     super(globalConfiguration) # initialize server beneath the application
 
@@ -41,9 +50,15 @@ module.exports = class Application extends Server
         @install(callback)
     ], callback)
 
-  install: (callback) ->
+  install: (callback) =>
     super callback # install the server
 
+  config: (callback) =>
+    Injector.inject(callback, @)
+
+  # @param code[opcode] operation code to bind to
+  # @param action[string] action name of controller
+  # @param controller[string] controller name
   # adds specified route to the application router
   route: (code, action, controller) ->
     @router.route code, action, controller
