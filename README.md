@@ -18,5 +18,7 @@ Currently supported core injections:
 ------------------------------------
 
 $app - the core app
+
 $taskmgr - task manager
+
 $router - app router
