@@ -44,7 +44,7 @@ module.exports = class Services
             syncOptions = {}
 
             if @config.get('sync') is 'force'
-              syncOptions.force = true
+                syncOptions.force = true
 
             @adapter.sync(syncOptions).done (err, result) ->
               console.log err if err
