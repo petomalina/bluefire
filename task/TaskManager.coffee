@@ -6,7 +6,7 @@ module.exports = class TaskManager
 	constructor: (@taskFolder = 'application/tasks/') ->
 		@tasks = { }
 
-		Injector.register('$TaskManager', @)
+		Injector.addService('$taskmgr', @)
 
 	get: (name) ->
 		return @tasks[name]
