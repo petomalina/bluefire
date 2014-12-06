@@ -22,6 +22,7 @@ module.exports = class Router
       @controllers[path.controller] = controller
       console.log 'New controller registered : [' + path.controller + ']'
 
+    Injector.addService('$router', @)
     console.log 'Router initialized'
     callback(null, 1)
 
