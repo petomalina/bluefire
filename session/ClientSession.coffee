@@ -35,7 +35,7 @@ module.exports = class ClientSession extends Session
     if @tasks[name]?
       @removeTask(name)
 
-    @tasks[name] = Injector.get('$TaskManager').perform('Ping', @)
+    @tasks[name] = Injector.getService('$taskmgr').perform('Ping', @)
 
   removeTask: (name) =>
     if @tasks[name]?
