@@ -63,9 +63,11 @@ class Injector
     functionArgs = /^function\s*[^\(]*\(\s*([^\)]*)\)/m
     args = func.toString().match(functionArgs)[1].split(',')
 
+    trueArgs = []
     for i in [0..args.length-1] # trim blanks here
-      args[i] = args[i].trim()
+      arg = args[i].trim()
+      trueArgs.push arg if arg isnt ''
 
-    return args
+    return trueArgs
 
 module.exports = new Injector()
