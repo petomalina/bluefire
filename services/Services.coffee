@@ -66,7 +66,9 @@ module.exports = class Services
     Model = @adapter.define args...
     global[name] = Model # globalize model
 
-    console.log 'New model registered: ' + name
+    Injector.addService(name, Model)
+
+    console.log "New model registered: [#{name}]"
 
   addDataService: (name, options) ->
     service = require name
