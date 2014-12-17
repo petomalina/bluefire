@@ -11,6 +11,8 @@ module.exports = class Router
     for code, path of @configuration.data
       @route code, path.action, path.controller
 
+    Injector.addService('$router', @)
+
     console.log 'Initializing needed controllers ...'
     for code, path of @paths
       if @controllers[path.controller]?
@@ -19,10 +21,9 @@ module.exports = class Router
       # add controller - require and load
       controller = require 'application/controllers/' + path.controller
 
-      @controllers[path.controller] = controller
-      console.log 'New controller registered : [' + path.controller + ']'
+      @controllers[path.controller] = Injector.create controller
+      console.log "New controller registered: [#{path.controller}]"
 
-    Injector.addService('$router', @)
     console.log 'Router initialized'
     callback(null, 1)
 
@@ -34,7 +35,7 @@ module.exports = class Router
 
   route: (code, action, controller) ->
     @paths[code] = { action: action, controller: controller }
-    console.log 'New route registered : [' + controller + ']->' + action
+    console.log 'New route registered: [' + controller + ']->' + action
 
   call: (code, session, data) =>
 
