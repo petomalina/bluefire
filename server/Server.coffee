@@ -9,16 +9,19 @@ module.exports = class Server
   install: (callback) =>
 
     # create parser and add packets
-    Parser = require @configuration.get 'parser'
-    args = Injector.resolve Parser, @configuration.get(@configuration.get 'parser')
-    @parser = new Parser args... # create parser
+    parserModuleNmae = @configuration.get('parser')
+    if parserModuleNmae?
+      Parser = require parserModuleNmae
+      args = Injector.resolve Parser, @configuration.get(parserModuleNmae)
+      @parser = new Parser args... # create parser
 
-    @_installPackets()
+      # packets can't be installed without parser
+      @_installPackets()
 
     @server = TCP.createServer()
 
     console.log 'Server Initialized'
-    callback(null, 1)
+    callback(null, 4)
 
   _installPackets: () =>
     packets = require 'application/configs/packets'
