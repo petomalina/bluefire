@@ -15,4 +15,7 @@ module.exports = class FileLoader
     directory = process.cwd() + @options.root + path
 
     FileSystem.readdir directory, (err, files) =>
-      callback files
+      if err?
+        callback([])
+      else
+        callback(files)
