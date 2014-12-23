@@ -22,3 +22,5 @@ $app - the core app
 $taskmgr - task manager
 
 $router - app router
+
+$connect - service manager
