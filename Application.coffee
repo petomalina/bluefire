@@ -34,20 +34,20 @@ module.exports = class Application extends Server
     super(globalConfiguration) # initialize server beneath the application
 
     Async.series([
-      (callback) =>
+      (asyncCallback) =>
         @taskManager = new TaskManager()
-        @taskManager.install(callback)
+        @taskManager.install(asyncCallback)
 
-      (callback) =>
+      (asyncCallback) =>
         @services = new Services(connectionConfiguration)
-        @services.install(callback)
+        @services.install(asyncCallback)
 
-      (callback) =>
+      (asyncCallback) =>
         @router = new Router(routesConfiguration)
-        @router.install(callback)
+        @router.install(asyncCallback)
 
-      (callback) =>
-        @install(callback)
+      (asyncCallback) =>
+        @install(asyncCallback)
     ], callback)
 
   install: (callback) =>
