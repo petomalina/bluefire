@@ -15,7 +15,7 @@ module.exports = class TaskManager
 		return @get(name).perform(context)
 
 	install: (callback) =>
-		loader = new FileLoader
+		loader = new FileLoader()
 
 		loader.find @taskFolder, (files) =>
 			if files?
