@@ -25,7 +25,7 @@ module.exports = class Router
       console.log "New controller registered: [#{path.controller}]"
 
     console.log 'Router initialized'
-    callback(null, 1)
+    callback(null, 3)
 
   controller: (name, module) ->
     if typeof(module) is 'object' # accept object as a controller
