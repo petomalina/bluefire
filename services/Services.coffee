@@ -44,20 +44,20 @@ module.exports = class Services
 
     Async.series([
       (asyncCallback) => # database setup
-        services = @config.get('services')
+        services = @config.data
 
-        for name, moduleName of services
+        for serviceName, options of services
           # service class
-          ServiceModule = require(moduleName)
+          ServiceModule = require(options.module)
           # get service options
-          serviceOptions = @config.get(name)
+          serviceArguments = options.arguments
           # resolve service constructor
-          Injector.resolve(ServiceModule, serviceOptions)
+          serviceConstructArguments = Injector.resolve(ServiceModule, serviceArguments)
           # create service
-          service = new ServiceModule(serviceOptions...)
+          service = new ServiceModule(serviceConstructArguments...)
 
           # add service to injector
-          Injector.addService(name, service)
+          Injector.addService(serviceName, service)
 
           if @mainService is null
             @mainService = service
