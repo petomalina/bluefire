@@ -7,24 +7,24 @@ module.exports = class Router
     @configuration = configuration
 
   install: (callback) ->
-    console.log 'Initializing paths ...'
-    for code, path of @configuration.data
-      @route code, path.action, path.controller
-
     Injector.addService('$router', @)
 
-    console.log 'Initializing needed controllers ...'
-    for code, path of @paths
-      if @controllers[path.controller]?
-        continue # this controller already exists
+    if @configuration.data.length > 1 # cont initialize paths if no paths are in data
+      console.log 'Initializing paths ...'
+      for code, path of @configuration.data
+        @route code, path.action, path.controller
 
-      # add controller - require and load
-      controller = require 'application/controllers/' + path.controller
+      console.log 'Initializing needed controllers ...'
+      for code, path of @paths
+        if @controllers[path.controller]?
+          continue # this controller already exists
 
-      @controllers[path.controller] = Injector.create controller
-      console.log "New controller registered: [#{path.controller}]"
+        # add controller - require and load
+        controller = require 'application/controllers/' + path.controller
 
-    console.log 'Router initialized'
+        @controllers[path.controller] = Injector.create controller
+        console.log "New controller registered: [#{path.controller}]"
+
     callback(null, 3)
 
   controller: (name, module) ->
