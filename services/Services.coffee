@@ -3,83 +3,144 @@ Async = require 'async'
 
 module.exports = class Services
 
+  ###
+  @param config [Configuration] current configuration for service manager
+  
+  @example Configuration for Service manager (configs/connections.coffee)
+    module.exports = {
+      Database: { # service name
+        module: 'sequelize' # module name of service
+        arguments: { # arguments to be passed to the service constructor
+          database: 'my_database'
+          username: 'root'
+          password: '1234'
+
+          options: {
+            dialest: 'postgres'
+            port: 5432
+          }
+        }
+
+        # optional callbacks
+        beforeCreate: (options, moduleArgs) ->
+
+        afterCreate: (service) ->
+         service.authenticate().complete(err) -> # authenticate sequelize
+           console.log err if err?
+      }
+    }
+  ###
   constructor: (@config) ->
-    @adapter = null # give adapter place in object
+    #@adapter = null # give adapter place in object
     @modelsFolder = 'application/models/'
 
+    # store the main(first) service if no service is defined within $connect.model call
+    @mainService = null
+
+  # Installs the service manager and adds the newly created instance to Injector as $connect
+  # @param callback [Function] function to be called when install is finished
   install: (callback) =>
     Injector.addService('$connect', @) # add connections to injector
 
     Async.series([
       (asyncCallback) => # database setup
-        adapterModuleName = @config.get('adapter')
+        services = @config.get('services')
 
-        if adapterModuleName?
-          @adapterModule = require(adapterModuleName) # save the adapter module in services
-          adapterOptions = @config.get(adapterModuleName) # get inject options
-          adapterArgs = Injector.resolve(@adapterModule, adapterOptions)
+        for name, moduleName of services
+          # service class
+          ServiceModule = require(moduleName)
+          # get service options
+          serviceOptions = @config.get(name)
+          # resolve service constructor
+          Injector.resolve(ServiceModule, serviceOptions)
+          # create service
+          service = new ServiceModule(serviceOptions...)
 
-          @adapter = new @adapterModule(adapterArgs...)
+          # add service to injector
+          Injector.addService(name, service)
 
-          @adapter.authenticate().done (err, result) ->
-            if err?
-              console.log err
-            else
-              console.log 'Database authentication successfull ...'
+          if @mainService is null
+            @mainService = service
 
-            global.Database = @adapter # give it global meaning
-
-            asyncCallback(null, 1)
-        else
-          asyncCallback(null, 1)
-
-      (asyncCallback) => # cache setup
-        asyncCallback(null, 2)
+        asyncCallback(null, 1)
 
       (asyncCallback) => # models setup
         loader = new FileLoader()
 
         loader.find @modelsFolder, (files) => # get the files
-          if files? # if no files found in model folder, just skip
-            for moduleName in files
-              module = require(@modelsFolder + moduleName)
+          for moduleName in files
+            module = require(@modelsFolder + moduleName)
 
-              @addModel moduleName, module
+            @model(moduleName, module.model, module.service)
 
-          # this also applies to no config
-          sync = @config.get 'sync' # database synchronization
-          if sync? and sync isnt false
-            console.log "Syncing database"
-            syncOptions = {}
-
-            if @config.get('sync') is 'force'
-                syncOptions.force = true
-
-            @adapter.sync(syncOptions).done (err, result) ->
-              console.log err if err
-              console.log 'Services initialized'
-              asyncCallback(null, 3)
-          else
-            asyncCallback(null, 3) # skip the 
-
+          asyncCallback(null, 2)
     ], () ->
       callback(null, 2)
     )
+  
+  ###
+  Adds model to previously defined service
+  @param name [String] name of model (for injector)
+  @param modelOptions [Object] map of options
+  @param service [String] name of service to bind model to
+  
+  @example Add model to previously created service @see service ( using previously injected $connect)
+    $connect.model('MyModel', {
+      modelName: 'my_model'
+      attributes: {
+        my_attribute: 'INTEGER'
+        my_string: 'STRING'
+      }
+    }, 'Database')
+  ###
+  model: (name, modelOptions, service = null) =>
 
-  addModel: (name, modelOptions) =>
+    if service is null and @mainService isnt null
+      service = @mainService
+    else if service isnt null
+      service = Injector.getService(service) # get service by name from injector
+    
+    if service is null # could not be found
+      console.log "[Bluefire Services] Cannot attach model to non existing service"
+      return
 
-    for attribute, type of modelOptions.attributes # set attributes to module specifig attributes
-      modelOptions.attributes[attribute] = @adapterModule[modelOptions.attributes[attribute]]
+    definitionArguments = Injector.resolve(service.define, modelOptions)
 
-    name = name.split('.')[0] # get the first word
-    args = Injector.resolve @adapter.define, modelOptions
+    model = service.define(definitionArguments...) # splat arguments
 
-    Model = @adapter.define args...
-    global[name] = Model # globalize model
-
-    Injector.addService(name, Model)
+    Injector.addService(name, model)
 
     console.log "New model registered: [#{name}]"
 
-  addDataService: (name, options) ->
-    service = require name
+  ###
+  Adds service to the service map
+
+  @param name [String] the name of service
+  @param moduleName [String] name of module to be loaded
+  @param options [Object] options passed to constructor of module
+  @param beforeCreate [Function] callback called before construction of service
+  @param afterCreate [Function] callback called after service construction
+  #
+  @example Create database service with sequelize orm (previously injected $connect used)
+    $connect.service('Database', 'sequelize', {
+      database: 'my_database'
+      username: 'root'
+      password: '1234'
+      options: {
+        dialest: 'postgres'
+        port: 5432
+      }
+    })
+  ###
+  service: (name, moduleName, options, beforeCreate, afterCreate) ->
+    Module = require(moduleName)
+
+    moduleArgs = Injector.resolve(Module, options)
+
+    beforeCreate(options, moduleArgs) if beforeCreate? # callback the injected arguments
+
+    service = new Module(moduleArgs...) # create service with args
+
+    Injector.addService(name, service) # register service to injector
+
+    afterCreate(service) if afterCreate? # callback created service
