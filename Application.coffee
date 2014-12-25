@@ -53,17 +53,39 @@ module.exports = class Application extends Server
   install: (callback) =>
     super callback # install the server
 
+  ###
+  Configurate the application. All currently injectable items will be injected
+  into the callback function
+
+  @param function [Function] injected callback for configuration
+
+  @exmaple Configurate the application (application is already created Application instance)
+    application.config ($connect, $router) ->
+      # see documentation for injectable application modules to access API
+  ###
   config: (callback) =>
     Injector.inject(callback, @)
 
-  # @param code[opcode] operation code to bind to
-  # @param action[string] action name of controller
-  # @param controller[string] controller name
-  # adds specified route to the application router
+  ###
+  Adds specified route to the application router
+
+  @param code[opcode] operation code to bind to
+  @param action[string] action name of controller
+  @param controller[string] controller name
+
+  @deprecated
+  ###
   route: (code, action, controller) ->
     @router.route code, action, controller
 
-  # adds specified controller into the router
+  ###
+  Adds specified controller into the router
+
+  @param name [String] name of controller
+  @param controller [Class] controller class to be added
+
+  @deprecated
+  ###
   controller: (name, controller) ->
     @router.controller name, controller
 

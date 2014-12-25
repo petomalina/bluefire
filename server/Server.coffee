@@ -20,7 +20,6 @@ module.exports = class Server
 
     @server = TCP.createServer()
 
-    console.log 'Server Initialized'
     callback(null, 4)
 
   _installPackets: () =>
