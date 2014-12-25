@@ -1,12 +1,33 @@
+###
+Class of application Injector. Contains services and factories. May
+containt service without factory (eg. application core items)
+
+@note This class is inspired by angular dependency injection system
+###
 class Injector
 
+  ###
+  Initializes both, factories and services maps.
+  ###
   constructor: () -> 
     @factories = { }
     @services = { }
 
+  ###
+  Adds Factory to the factory map
+
+  @note This will not create service (lazy loading)
+  ###
   addFactory: (key, factory) ->
     @factories[key] = factory
 
+  ###
+  Adds Service to the services map
+
+  @note This does not affect any factories. Setting different service
+  with same name as one of factories will prevent factory from creating
+  correct service
+  ###
   addService: (key, service) ->
     @services[key] = service
 
@@ -17,6 +38,9 @@ class Injector
 
     if not service?
       factory = @factories[key]
+      if not factory?
+        return null
+
       service = factory()
       @services[key] = service
 
