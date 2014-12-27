@@ -12,8 +12,8 @@ Server = require './server/Server'
 module.exports = class Application extends Server
 
   constructor: (callback) ->
-    global.Application = @
-    Injector.addService('$app', @) # add this object to injector
+    #global.Application = @
+    #Injector.addService('$app', @) # add this object to injector
 
     connectionConfiguration = new Configuration()
     connectionConfiguration.load 'application/configs/connections'
