@@ -69,6 +69,8 @@ module.exports = class Services
 
         loader.find @modelsFolder, (files) => # get the files
           for moduleName in files
+            moduleName = moduleName.split('.')[0]
+
             module = require(@modelsFolder + moduleName)
 
             @model(moduleName, module.model, module.service)
