@@ -28,8 +28,6 @@ module.exports = class Server
 
     @server = TCP.createServer()
 
-    console.dir "here"
-
     callback(null, 4)
 
   ###
