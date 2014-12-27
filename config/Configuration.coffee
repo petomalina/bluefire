@@ -1,4 +1,7 @@
 
+###
+Class that loads the file and keeps the contents as configurations
+###
 module.exports = class Configuration
 
   constructor: () ->

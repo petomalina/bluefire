@@ -1,13 +1,21 @@
 TCP = require 'net'
 Session = require '../session/ClientSession'
 FileLoader = require '../fileLoader/FileLoader'
+Parser = require '../parser/Parser'
 
+
+###
+
+###
 module.exports = class Server
 
   constructor: (@configuration) ->
+    # @property [Object] Parser instance
+    @parser = new (require('../parser/Parser')) # require default parsr
+
+    Injector.addService('$server', @)
 
   install: (callback) =>
-
     # create parser and add packets
     parserModuleNmae = @configuration.get('parser')
     if parserModuleNmae?
@@ -20,7 +28,23 @@ module.exports = class Server
 
     @server = TCP.createServer()
 
+    console.dir "here"
+
     callback(null, 4)
+
+  ###
+  Adds given packet to the parser.
+  ###
+  packet: (name, structure) ->
+
+
+  ###
+  Replaces the current packet parser with new module
+
+  @param moduleName [String] name of module to be set as a parser
+  ###
+  parser: (moduleName) =>
+    @parser = new (require(moduleName))
 
   _installPackets: () =>
     packets = require 'application/configs/packets'
