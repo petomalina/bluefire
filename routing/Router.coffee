@@ -1,14 +1,13 @@
 
 module.exports = class Router
 
-  constructor: (configuration) ->
+  constructor: () ->
     @paths = { }
     @controllers = { }
-    @configuration = configuration
 
     Injector.addService('$router', @)
 
-  install: (callback) ->
+  install: (@configuration, callback) ->
     if Object.keys(@configuration.data).length > 1 # cont initialize paths if no paths are in data
       console.log 'Initializing paths ...'
       for code, path of @configuration.data

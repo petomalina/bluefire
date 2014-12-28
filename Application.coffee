@@ -9,11 +9,25 @@ Router = require './routing/Router'
 TaskManager = require './task/TaskManager'
 Server = require './server/Server'
 
+###
+Base Bluefire module. When install is called, application will try to load
+various files from folders (see documentation). This will enable structured
+approach to application style.
+###
 module.exports = class Application extends Server
 
-  constructor: (callback) ->
-    #global.Application = @
-    #Injector.addService('$app', @) # add this object to injector
+  ###
+  Creates just basic applicatin with parser and tcp setup
+  ###
+  constructor: () ->
+    super # creates defualt parser and injects server
+
+  ###
+  Installs the whole application using structured approach
+
+  @param callback [Function] function to be called after install
+  ###
+  install: (callback) =>
 
     connectionConfiguration = new Configuration()
     connectionConfiguration.load 'application/configs/connections'
@@ -31,27 +45,22 @@ module.exports = class Application extends Server
       global.debug = () ->
         # nothing here
 
-    super(globalConfiguration) # initialize server beneath the application
-
     Async.series([
       (asyncCallback) =>
         @taskManager = new TaskManager()
         @taskManager.install(asyncCallback)
 
       (asyncCallback) =>
-        @services = new Services(connectionConfiguration)
-        @services.install(asyncCallback)
+        @services = new Services()
+        @services.install(connectionConfiguration, asyncCallback)
 
       (asyncCallback) =>
-        @router = new Router(routesConfiguration)
-        @router.install(asyncCallback)
+        @router = new Router()
+        @router.install(routesConfiguration, asyncCallback)
 
       (asyncCallback) =>
-        @install(asyncCallback)
+        super(globalConfiguration, asyncCallback) # call server install
     ], callback)
-
-  install: (callback) =>
-    super callback # install the server
 
   ###
   Configurate the application. All currently injectable items will be injected
@@ -65,35 +74,6 @@ module.exports = class Application extends Server
   ###
   config: (callback) =>
     Injector.inject(callback, @)
-
-  ###
-  Adds specified route to the application router
-
-  @param code[opcode] operation code to bind to
-  @param action[string] action name of controller
-  @param controller[string] controller name
-
-  @deprecated
-  ###
-  route: (code, action, controller) ->
-    @router.route code, action, controller
-
-  ###
-  Adds specified controller into the router
-
-  @param name [String] name of controller
-  @param controller [Class] controller class to be added
-
-  @deprecated
-  ###
-  controller: (name, controller) ->
-    @router.controller name, controller
-
-  getController: (name) ->
-    @router.getController(name)
-
-  run: () ->
-    super # run the server
 
   onConnect: (session) ->
     console.log 'connect'
@@ -111,5 +91,8 @@ module.exports = class Application extends Server
     @router.call packetName, session, data
     @onData(session, packetName, data)
 
+  ###
+  @virtual 
+  ###
   onData: (session, packetName, data) =>
     # virtual method - override this when needed

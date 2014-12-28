@@ -30,7 +30,7 @@ module.exports = class Services
       }
     }
   ###
-  constructor: (@config) ->
+  constructor: () ->
     #@adapter = null # give adapter place in object
     @modelsFolder = 'application/models/'
 
@@ -39,7 +39,7 @@ module.exports = class Services
 
   # Installs the service manager and adds the newly created instance to Injector as $connect
   # @param callback [Function] function to be called when install is finished
-  install: (callback) =>
+  install: (@config, callback) =>
     Injector.addService('$connect', @) # add connections to injector
 
     Async.series([

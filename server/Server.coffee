@@ -5,17 +5,17 @@ Parser = require '../parser/Parser'
 
 
 ###
-
+Main server class which stores tcp connection, packets and parser
 ###
 module.exports = class Server
 
-  constructor: (@configuration) ->
+  constructor: () ->
     # @property [Object] Parser instance
     @parser = new (require('../parser/Parser')) # require default parsr
 
     Injector.addService('$server', @)
 
-  install: (callback) =>
+  install: (@configuration, callback) =>
     # create parser and add packets
     parserModuleNmae = @configuration.get('parser')
     if parserModuleNmae?
