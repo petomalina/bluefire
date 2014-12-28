@@ -4,6 +4,25 @@ try
 catch exception
   Session = class
 
+
+###
+
+@method #beforeSerialize
+  Called before packet send
+  @param [String] name of the packet
+  @param [Object] data to be sent
+
+@method #beforeSend
+  Called before sending packet (after #beforeSerialize)
+  @param [String] name of the packet
+  @param [Object] non-serialized data
+  @param [Byte Array] serialized data
+
+@method #afterSend
+  Called after sending packet (after #beforeSend)
+  @param [String] name of the packet
+  @param [Byte Array] serialized data 
+###
 module.exports = class ClientSession extends Session
 
   constructor: (socket) ->
@@ -23,7 +42,7 @@ module.exports = class ClientSession extends Session
     Injector.getService("$server").parser.serialize data, packetName, (serialized) =>
       @beforeSend packetName, data, serialized if @beforeSend? # send non serialized and serialized data
 
-      @socket.write(serialized)
+      @write(serialized)
 
       @afterSend packetName, data if @afterSend?
       callback() if callback?
