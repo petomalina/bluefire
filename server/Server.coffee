@@ -17,14 +17,28 @@ module.exports = class Server
 
   install: (@configuration, callback) =>
     # create parser and add packets
-    parserModuleNmae = @configuration.get('parser')
-    if parserModuleNmae?
-      Parser = require parserModuleNmae
-      args = Injector.resolve Parser, @configuration.get(parserModuleNmae)
-      @parser = new Parser args... # create parser
+    parserModuleName = @configuration.get('parser')
+    if parserModuleName?
+      @parser(parserModuleName, @configuration.get(parserModuleName))
 
-      # packets can't be installed without parser
-      @_installPackets()
+    # if no parser is defined in the configuration, defaukt will be used instead
+    try
+      packets = require('application/configs/packets')
+
+      if packets.head?
+        @parser.getHead().add(packets.head)
+
+      # register all packets
+      for name, packetStructure of packets
+        continue if name is 'head'
+
+        condition = null
+        if packetStructure[@parser.conditionField]? # register additional condition to parser
+          condition = packetStructure[@parser.conditionField]
+
+        @parser.registerPacket(name, condition).add(packetStructure)      
+    catch exception
+      # no packets found
 
     @server = TCP.createServer()
 
@@ -34,15 +48,20 @@ module.exports = class Server
   Adds given packet to the parser.
   ###
   packet: (name, structure) ->
-
+    if name is "head"
+      @parser.getHead().add(structure)
+    else
+      condition = structure[@conditionField] # get additional conditions
+      @parser.registerPacket(name, condition).add(structure)
 
   ###
   Replaces the current packet parser with new module
 
   @param moduleName [String] name of module to be set as a parser
   ###
-  parser: (moduleName) =>
-    @parser = new (require(moduleName))
+  parser: (moduleName, options = {}) =>
+    parserModule = require(moduleName)
+    @parser = Injector.create(parserModule, options)
 
   _installPackets: () =>
     packets = require 'application/configs/packets'
