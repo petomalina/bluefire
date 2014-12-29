@@ -22,6 +22,10 @@ module.exports = class Application extends Server
   constructor: () ->
     super # creates defualt parser and injects server
 
+    @taskManager = new TaskManager()
+    @services = new Services()
+    @router = new Router()
+
   ###
   Installs the whole application using structured approach
 
@@ -47,15 +51,12 @@ module.exports = class Application extends Server
 
     Async.series([
       (asyncCallback) =>
-        @taskManager = new TaskManager()
         @taskManager.install(asyncCallback)
 
       (asyncCallback) =>
-        @services = new Services()
         @services.install(connectionConfiguration, asyncCallback)
 
       (asyncCallback) =>
-        @router = new Router()
         @router.install(routesConfiguration, asyncCallback)
 
       (asyncCallback) =>
