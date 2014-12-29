@@ -10,6 +10,9 @@ module.exports = class TaskManager
 	constructor: (@taskFolder = 'application/tasks/') ->
 		@tasks = { }
 
+		# add task manager to the injector services
+		Injector.addService('$taskmgr', @)
+
 	###
 	@return [Task] Returns task from tasks map or null when no task is defined
 	###
@@ -42,8 +45,5 @@ module.exports = class TaskManager
 				# get task name by the name of the file without ending
 				@tasks[moduleName.split('.')[0]] = new Task(args...)
 				console.log "New task registered: [#{moduleName}]"
-
-			# add task manager to the injector services
-			Injector.addService('$taskmgr', @)
 
 			callback(null, 1)

@@ -37,10 +37,11 @@ module.exports = class Services
     # store the main(first) service if no service is defined within $connect.model call
     @mainService = null
 
+    Injector.addService('$connect', @) # add connections to injector
+
   # Installs the service manager and adds the newly created instance to Injector as $connect
   # @param callback [Function] function to be called when install is finished
   install: (@config, callback) =>
-    Injector.addService('$connect', @) # add connections to injector
 
     Async.series([
       (asyncCallback) => # database setup
