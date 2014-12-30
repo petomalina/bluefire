@@ -23,21 +23,20 @@ module.exports = class Server
 
     # if no parser is defined in the configuration, defaukt will be used instead
     try
-      packets = require('application/configs/packets')
+      packets = require("#{global.CurrentWorkingDirectory}/configs/packets")
 
-      if packets.head?
+      if packets.Head? # register head if found in collection
         @parser.getHead().add(packets.head)
 
       # register all packets
-      for name, packetStructure of packets
-        continue if name is 'head'
+      for name, packetStructure of packets.ServerPackets
+        @packet(name, true, packetStructure)
 
-        condition = null
-        if packetStructure[@parser.conditionField]? # register additional condition to parser
-          condition = packetStructure[@parser.conditionField]
+      for name, packetStructure of packets.ClientPackets
+        @packet(name, false, packetStructure)
 
-        @parser.registerPacket(name, condition).add(packetStructure)      
     catch exception
+      console.dir exception
       # no packets found
 
     @server = TCP.createServer()
@@ -47,12 +46,9 @@ module.exports = class Server
   ###
   Adds given packet to the parser.
   ###
-  packet: (name, structure) ->
-    if name is "head"
-      @parser.getHead().add(structure)
-    else
-      condition = structure[@conditionField] # get additional conditions
-      @parser.registerPacket(name, condition).add(structure)
+  packet: (name, isServerPacket, structure) ->
+    condition = structure[@conditionField] # get additional condition
+    @parser.registerPacket(name, isServerPacket, condition).add(structure)
 
   ###
   Replaces the current packet parser with new module
@@ -63,28 +59,33 @@ module.exports = class Server
     parserModule = require(moduleName)
     @parser = Injector.create(parserModule, options)
 
-  _installPackets: () =>
-    packets = require 'application/configs/packets'
+  ###
+  Starts to listen on given port (by argument paseed or configuration)
 
-    if packets.head?
-      @parser.registerHead().add(packets.head)
-
-    # register all packets
-    for name, packetStructure of packets
-      continue if name is 'head'
-
-      condition = null
-      if packetStructure[@parser.conditionField]? # register additional condition to parser
-        condition = packetStructure[@parser.conditionField]
-        #delete packetStructure[@parser.conditionField]
-
-      @parser.registerPacket(name, condition).add(packetStructure)
-
-  run: () =>
+  @param port [Integer] port to listen on. This will override local configuration
+  ###
+  run: (port = null) =>
     @server.on 'connection', @_onConnect
 
-    @server.listen @configuration.get 'port'
-    console.log('Server is now running on port: ' + @configuration.get 'port')
+    # override the configuration port if other port is specified (non structured approach)
+    port = if port is null then @configuration.get 'port' else port
+
+    @server.listen(port)
+    console.log "Server is now running on port: #{port}"
+
+    #console.log "Running console commander \n"
+
+    ###process.stdin.setEncoding('utf8')
+
+    # look for readable
+    process.stdin.on 'readable', () ->
+      chunk = process.stdin.read()
+      if chunk isnt null
+        process.stdout.write('data: ' + chunk)
+
+    # end commander at the end
+    process.stdin.on 'end', () ->
+      process.stdout.write('Console commander exited')###
 
   _onConnect: (socket) =>
     do (socket) =>
@@ -95,11 +96,12 @@ module.exports = class Server
           @_onData(session, packetName, parsedData)
 
       socket.on 'disconnect', () =>
+        socket.destroy()
         @_onDisconnect session
 
       socket.on 'error', () =>
-        console.log 'Error on socket, disconnecting ...'
-        #socket.destroy()
+        console.log "Error on socket, disconnecting ..."
+        socket.destroy()
         @_onDisconnect session
 
       @onConnect(session)

@@ -2,17 +2,18 @@ Packet = require('./Packet')
 
 module.exports = class Parser
 
-	constructor: (@conditionField = 'opcode') ->
+	constructor: (@conditionField = 'opcode', @isServer = true) ->
 		@head = new Packet("Head") # register empty head
 
-		@packetCollection = { } # packet collection
+		@serverPackets = { }
+		@clientPackets = { }
 		@packetConditions = { } # condition - name map
 
 	###
 	@return [Packet] packet representing head for all packets
 	###
-	getHead: () ->
-		return @packetHead
+	getHead: () =>
+		return @head
 
 	###
 	Sets the condition field to the custom one
@@ -24,26 +25,42 @@ module.exports = class Parser
 	###
 	Registers 
 	###
-	registerPacket: (packetName, condition = null) =>
+	registerPacket: (packetName, isServerPacket, condition = null) =>
 		packet = new Packet(packetName, @packetHead)
 
-		@packetCollection[packetName] = packet
+		if isServerPacket # switch between server and client packets
+			@serverPackets[packetName] = packet
+		else
+			@clientPackets[packetName] = packet
 
 		# register condition for current packet
-		@registerCondition(packetName, condition)
+		if (@isServer and not isServerPacket) or (not @isServer and isServerPacket)
+			@registerCondition(packetName, condition)
 
 		return packet
 
-	getPacket: (packetName) ->
-		return @packetCollection[packetName]
+	###
+	Returns packet from collection by given type
+
+	@param packetName [String] packet name from collection
+	@param isServer [Boolean] true if server packet is needed, else false. Default: true
+	###
+	getPacket: (packetName, isServer = true) ->
+		return if isServer then @serverPackets[packetName] else @clientPackets[packetName]
 
 	registerCondition: (packetName, condition = null) ->
 		if condition? and packetName?
 			@packetConditions[condition] = packetName 			
 
-	parse: (data, callback, packetName = null) ->
-		buffer = new Buffer(data)
+	###
+	Parses the given data buffer into the structure which
+	represents the given packet by conditionField from head
 
+	@param data [Buffer] buffer to be parsed
+	@param callback [Function] callback to be called after parse
+	@param packetname [String] optional packet name if already known
+	###
+	parse: (data, callback, packetName = null) ->
 		parsedData = { }
 		head = @getHead()
 		index = 0 # current byte index for parser
@@ -55,7 +72,8 @@ module.exports = class Parser
 
 			[parsedData[name], index] = read(buffer, index)
 
-		packet = @packetCollection[@packetConditions[parsedData[@conditionField]]]
+		# parse packets that are oposite
+		packet = @getPacket(@packetConditions[parsedData[@conditionField]], !@isServer)
 
 		if not packet?
 			callback(null, null)
@@ -68,8 +86,21 @@ module.exports = class Parser
 
 		callback(packet.name, parsedData)
 
+	###
+	Creates byte buffer that can be passed right into socket with current
+	packet structure
+
+	@param data [Object] data to be serialized
+	@param packetName [String] name of packet to serialize
+	@param callback [Function] function to be called
+
+	@example Serialization of previously registered packet with name 'myPacket'
+		serialize { myInt : 5}, 'myPacket', (buffer) ->
+			#send buffer or do something else
+	###
 	setialize: (data, packetName, callback) ->
-		packet = @packetCollection[packetName]
+		# serialize packets from this side
+		packet = @getPacket([packetName], @isServer)
 		bufferArray = []
 
 		for parser in packet.packetParseData
