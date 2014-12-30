@@ -1,6 +1,6 @@
 
 try
-  Session = require 'application/sessions/Session'
+  Session = require '#{CurrentWorkingDirectory}/sessions/Session'
 catch exception
   Session = class
 

@@ -19,7 +19,7 @@ module.exports = class Router
           continue # this controller already exists
 
         # add controller - require and load
-        controller = require 'application/controllers/' + path.controller
+        controller = require "#{global.CurrentWorkingDirectory}/application/controllers/" + path.controller
 
         @controllers[path.controller] = Injector.create controller
         console.log "New controller registered: [#{path.controller}]"
