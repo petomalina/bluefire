@@ -32,7 +32,7 @@ module.exports = class Services
   ###
   constructor: () ->
     #@adapter = null # give adapter place in object
-    @modelsFolder = 'application/models/'
+    @modelsFolder = "#{global.CurrentWorkingDirectory}/models/"
 
     # store the main(first) service if no service is defined within $connect.model call
     @mainService = null
@@ -116,14 +116,15 @@ module.exports = class Services
     console.log "New model registered: [#{name}]"
 
   ###
-  Adds service to the service map
+  Adds service to the service map. This method is synchronous.
 
   @param name [String] the name of service
   @param moduleName [String] name of module to be loaded
   @param options [Object] options passed to constructor of module
   @param beforeCreate [Function] callback called before construction of service
   @param afterCreate [Function] callback called after service construction
-  #
+  @return [Object] newly created service
+
   @example Create database service with sequelize orm (previously injected $connect used)
     $connect.service('Database', 'sequelize', {
       database: 'my_database'
@@ -147,3 +148,5 @@ module.exports = class Services
     Injector.addService(name, service) # register service to injector
 
     afterCreate(service) if afterCreate? # callback created service
+
+    return service
