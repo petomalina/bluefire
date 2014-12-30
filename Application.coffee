@@ -20,11 +20,16 @@ module.exports = class Application extends Server
   Creates just basic applicatin with parser and tcp setup
   ###
   constructor: () ->
+    process.on 'uncaughtException', (err) -> # catch all uncaught exceptions here. What to do next?
+      console.log "Uncaught exception captured : #{err}"
+
     super # creates defualt parser and injects server
 
     @taskManager = new TaskManager()
     @services = new Services()
     @router = new Router()
+
+    global.CurrentWorkingDirectory = process.cwd() # set current dit to global for easy pathing 
 
   ###
   Installs the whole application using structured approach
@@ -34,13 +39,13 @@ module.exports = class Application extends Server
   install: (callback) =>
 
     connectionConfiguration = new Configuration()
-    connectionConfiguration.load 'application/configs/connections'
+    connectionConfiguration.load "#{CurrentWorkingDirectory}/configs/connections"
 
     routesConfiguration = new Configuration()
-    routesConfiguration.load 'application/configs/routes'
+    routesConfiguration.load "#{CurrentWorkingDirectory}//configs/routes"
 
     globalConfiguration = new Configuration() # global configuration
-    globalConfiguration.load 'application/configs/config'
+    globalConfiguration.load "#{CurrentWorkingDirectory}//configs/config"
 
     if globalConfiguration.get "configuration" is "debug"
       global.debug = (debugText) ->
