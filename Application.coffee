@@ -79,7 +79,6 @@ module.exports = class Application extends Connection
     Injector.inject(callback, @)
 
   onConnect: (session) ->
-    console.log 'connect'
     # virtual method - override this when needed
 
   _onDisconnect: (session) ->

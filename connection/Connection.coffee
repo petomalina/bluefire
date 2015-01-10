@@ -21,6 +21,11 @@ module.exports = class Connection extends EventEmitter
     @router = new Router()
     Injector.addService('$router', @router)
 
+    if @isServer
+      @connection = new(require('./TCPAcceptor'))
+    else
+      @connection = new(require('./TCPConnector'))
+
   install: (@configuration, routerConfiguration, callback) =>
     # create parser and add packets
     parserModuleName = @configuration.get('parser')
@@ -44,11 +49,6 @@ module.exports = class Connection extends EventEmitter
     catch exception
       console.dir exception
       # no packets found
-
-    if @isServer
-      @connection = new(require('./TCPAcceptor'))
-    else
-      @connection = new(require('./TCPConnector'))
 
     # install router
     @router.install(routerConfiguration)
@@ -129,7 +129,6 @@ module.exports = class Connection extends EventEmitter
       @onConnect(session)
 
   onConnect: (session) ->
-    console.log 'connect'
     # virtual method - override this when needed
 
   _onDisconnect: (socket) ->
