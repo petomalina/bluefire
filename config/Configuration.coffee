@@ -19,6 +19,7 @@ module.exports = class Configuration
 
   add: (key, value) ->
     @data[key] = value
+    return @data[key]
 
   get: (key) ->
     return @data[key]
@@ -26,5 +27,13 @@ module.exports = class Configuration
   remove: (key) ->
     delete @data[key]
 
+  ###
+  Method that indicates if configuration data set is empty
+
+  @return [Boolean] true if set is empty, else false
+  ###
   empty: () ->
-    return Object.keys(@data).length is 0
+    return @length() is 0
+
+  length: () ->
+    return Object.keys(@data).length
