@@ -79,7 +79,7 @@ module.exports = class Connection extends EventEmitter
   ###
   run: (port = null, address = null) =>
 
-    if @configuration is null # repair missing configuration (no install)
+    if not @configuration? # repair missing configuration (no install)
       @configuration = new Configuration
 
     # override the configuration port if other port is specified (non structured approach)
