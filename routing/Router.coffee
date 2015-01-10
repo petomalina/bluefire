@@ -1,11 +1,18 @@
 
+###
+Class that calls controllers and their actions that were previously loaded by
+given packet and condition. This class stores names of server packets if client,
+else client packets (those which are received).
+This may also load the paths and after that, needed controllers.
+
+@author Gelidus
+@version 0.2
+###
 module.exports = class Router
 
   constructor: () ->
     @paths = { }
     @controllers = { }
-
-    Injector.addService('$router', @)
 
   install: (@configuration, callback) ->
     if Object.keys(@configuration.data).length > 1 # cont initialize paths if no paths are in data
@@ -24,7 +31,7 @@ module.exports = class Router
         @controllers[path.controller] = Injector.create controller
         console.log "New controller registered: [#{path.controller}]"
 
-    callback(null, 3)
+    callback(null, 3) if callback # only needed in async. This is synchronous
 
   ###
   Creates new controller for the router
@@ -41,7 +48,7 @@ module.exports = class Router
     if typeof(module) is 'object' # accept object as a controller
       @controllers[name] = module
     else
-      @controllers[name] = require module
+      @controllers[name] = Injector.create(module)
 
   ###
   Adds the route by the opcode, controllers name and its action name
