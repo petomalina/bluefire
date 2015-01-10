@@ -24,5 +24,9 @@
   "dependencies": {
     "async": "~0.9.0",
     "sequelize": "~2.0.0-rc1"
+  },
+  "devDependencies": {
+    "should": "^4.4.4",
+    "should-type": "0.0.4"
   }
 }
