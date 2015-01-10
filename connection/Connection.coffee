@@ -3,10 +3,12 @@ FileLoader = require '../fileLoader/FileLoader'
 Parser = require '../parser/Parser'
 Router = require '../routing/Router'
 
+EventEmitter = require('events').EventEmitter
+
 ###
 Main server class which stores tcp connection, packets and parser
 ###
-module.exports = class Connection
+module.exports = class Connection extends EventEmitter
 
   constructor: (@isServer) ->
     # @property [Object] Parser instance
@@ -103,6 +105,8 @@ module.exports = class Connection
   _onConnect: (socket) =>
     do (socket) =>
       session = new Session(socket)
+
+      @emit('connect', session) # emit new connection
 
       socket.on 'data', (data) =>
         @parser.parse data, (packetName, parsedData) =>

@@ -4,7 +4,7 @@ EventEmitter = require('events').EventEmitter
 module.exports = class TCPAcceptor extends EventEmitter
 
 	constructor: () ->
-		@connection = TCP.createServer (socket) ->
+		@connection = TCP.createServer (socket) =>
 			@emit('connect', socket)
 
 	run: (port, address = null) ->
