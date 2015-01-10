@@ -1,21 +1,24 @@
-TCP = require 'net'
 Session = require '../session/ClientSession'
 FileLoader = require '../fileLoader/FileLoader'
 Parser = require '../parser/Parser'
-
+Router = require '../routing/Router'
 
 ###
 Main server class which stores tcp connection, packets and parser
 ###
-module.exports = class Server
+module.exports = class Connection
 
-  constructor: () ->
+  constructor: (@isServer) ->
     # @property [Object] Parser instance
-    @parser = new (require('../parser/Parser')) # require default parsr
+    @parser = Injector.create(Parser, { isServer : @isServer }) # require default parsr
 
-    Injector.addService('$server', @)
+    # add server as service
+    Injector.addService('$connection', @)
 
-  install: (@configuration, callback) =>
+    @router = new Router()
+    Injector.addService('$router', @router)
+
+  install: (@configuration, routerConfiguration, callback) =>
     # create parser and add packets
     parserModuleName = @configuration.get('parser')
     if parserModuleName?
@@ -39,7 +42,13 @@ module.exports = class Server
       console.dir exception
       # no packets found
 
-    @server = TCP.createServer()
+    if @isServer
+      @connection = new(require('./TCPAcceptor'))
+    else
+      @connection = new(require('./TCPConnector'))
+
+    # install router
+    @router.install(routerConfiguration)
 
     callback(null, 4)
 
@@ -63,15 +72,19 @@ module.exports = class Server
   Starts to listen on given port (by argument paseed or configuration)
 
   @param port [Integer] port to listen on. This will override local configuration
+  @param address [String] address to connect to if is client
   ###
-  run: (port = null) =>
-    @server.on 'connection', @_onConnect
+  run: (port = null, address = null) =>
 
     # override the configuration port if other port is specified (non structured approach)
-    port = if port is null then @configuration.get 'port' else port
+    if port isnt null then @configuration.add('port', port)
+    if address isnt null then @configuration.add('address', address)
 
-    @server.listen(port)
-    console.log "Server is now running on port: #{port}"
+    @connection.on 'connect', @_onConnect
+
+    runOptions = Injector.resolve(@connection.run, @configuration.data)
+    
+    @connection.run(runOptions...)
 
     #console.log "Running console commander \n"
 
@@ -93,7 +106,7 @@ module.exports = class Server
 
       socket.on 'data', (data) =>
         @parser.parse data, (packetName, parsedData) =>
-          @_onData(session, packetName, parsedData)
+          @onData(session, packetName, parsedData)
 
       socket.on 'disconnect', () =>
         socket.destroy()
@@ -113,5 +126,5 @@ module.exports = class Server
   _onDisconnect: (socket) ->
     # virtual method - override this when needed
 
-  _onData: (socket, packetName, data) =>
+  onData: (session,packetName, data) =>
     # virtual method - override this when needed

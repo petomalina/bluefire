@@ -5,29 +5,29 @@ Async = require 'async'
 Configuration = require './config/Configuration'
 
 Services = require './services/Services'
-Router = require './routing/Router'
 TaskManager = require './task/TaskManager'
-Server = require './server/Server'
+Connection = require './connection/Connection'
 
 ###
 Base Bluefire module. When install is called, application will try to load
 various files from folders (see documentation). This will enable structured
 approach to application style.
 ###
-module.exports = class Application extends Server
+module.exports = class Application extends Connection
 
   ###
   Creates just basic applicatin with parser and tcp setup
   ###
-  constructor: () ->
-    process.on 'uncaughtException', (err) -> # catch all uncaught exceptions here. What to do next?
-      console.log "Uncaught exception captured : #{err}"
+  constructor: (isServer = true) ->
+    #process.on 'uncaughtException', (err) -> # catch all uncaught exceptions here. What to do next?
+    #  console.log "Uncaught exception captured : #{err}"
 
-    super # creates defualt parser and injects server
+    super(isServer) # creates defualt parser and injects server
 
     @taskManager = new TaskManager()
     @services = new Services()
-    @router = new Router()
+
+    Injector.addService('$service', @services) # add connections to injector
 
     global.CurrentWorkingDirectory = process.cwd() # set current dit to global for easy pathing 
 
@@ -62,10 +62,7 @@ module.exports = class Application extends Server
         @services.install(connectionConfiguration, asyncCallback)
 
       (asyncCallback) =>
-        @router.install(routesConfiguration, asyncCallback)
-
-      (asyncCallback) =>
-        super(globalConfiguration, asyncCallback) # call server install
+        super(globalConfiguration, routesConfiguration, asyncCallback) # call server install
     ], callback)
 
   ###
@@ -94,7 +91,7 @@ module.exports = class Application extends Server
     # virtual method - override this when needed
 
   _onData: (session, packetName, data) =>
-    @router.call packetName, session, data
+    #@router.call packetName, session, data
     @onData(session, packetName, data)
 
   ###
