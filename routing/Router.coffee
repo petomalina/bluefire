@@ -18,7 +18,7 @@ module.exports = class Router
     if Object.keys(@configuration.data).length > 1 # cont initialize paths if no paths are in data
       console.log 'Initializing paths ...'
       for code, path of @configuration.data
-        @route code, path.controller, path.action,
+        @route code, path.action, path.controller
 
       console.log 'Initializing needed controllers ...'
       for code, path of @paths
@@ -53,22 +53,23 @@ module.exports = class Router
   ###
   Adds the route by the opcode, controllers name and its action name
 
-  @param code [Object] opcode to handle the route by
-  @param controlelr [String] name of controller to bind action to
+  @param packetName [Object] opcode to handle the route by
+  @param controller [String] name of controller to bind action to
   @param action [String] name of action for the controller
   ###
-  route: (code, controller, action) ->
-    @paths[code] = { action: action, controller: controller }
-    console.log 'New route registered: [' + controller + ']->' + action
+  route: (packetName, action, controller = null) ->
+    @paths[packetName] = { action: action, controller: controller }
+    if controller isnt null
+      console.log 'New route registered: [' + controller + ']->' + action
 
-  call: (code, session, data) =>
+  call: (packetName, session, data) =>
 
-    if @paths[code]?
-      path = @paths[code]
+    if @paths[packetName]?
+      path = @paths[packetName]
 
       controller = @controllers[path.controller] # get controller by given path
 
-      if not controller?
+      if not controller? # support for non-controller functions
         path.action(session, data)
       else
         controller[path.action](session, data)

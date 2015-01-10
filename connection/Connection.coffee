@@ -83,7 +83,7 @@ module.exports = class Connection
     @connection.on 'connect', @_onConnect
 
     runOptions = Injector.resolve(@connection.run, @configuration.data)
-    
+
     @connection.run(runOptions...)
 
     #console.log "Running console commander \n"
@@ -106,6 +106,7 @@ module.exports = class Connection
 
       socket.on 'data', (data) =>
         @parser.parse data, (packetName, parsedData) =>
+          @router.call packetName, session, data
           @onData(session, packetName, parsedData)
 
       socket.on 'disconnect', () =>
@@ -126,5 +127,5 @@ module.exports = class Connection
   _onDisconnect: (socket) ->
     # virtual method - override this when needed
 
-  onData: (session,packetName, data) =>
+  onData: (session, packetName, data) =>
     # virtual method - override this when needed

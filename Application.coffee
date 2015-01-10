@@ -91,7 +91,6 @@ module.exports = class Application extends Connection
     # virtual method - override this when needed
 
   _onData: (session, packetName, data) =>
-    #@router.call packetName, session, data
     @onData(session, packetName, data)
 
   ###
