@@ -2,6 +2,7 @@ Session = require '../session/ClientSession'
 FileLoader = require '../fileLoader/FileLoader'
 Parser = require '../parser/Parser'
 Router = require '../routing/Router'
+Configuration = require '../config/Configuration'
 
 EventEmitter = require('events').EventEmitter
 
@@ -77,6 +78,9 @@ module.exports = class Connection extends EventEmitter
   @param address [String] address to connect to if is client
   ###
   run: (port = null, address = null) =>
+
+    if @configuration is null # repair missing configuration (no install)
+      @configuration = new Configuration
 
     # override the configuration port if other port is specified (non structured approach)
     if port isnt null then @configuration.add('port', port)
