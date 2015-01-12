@@ -54,7 +54,7 @@ module.exports = class ClientSession extends Session
   send: (packetName, data = { }, callback) =>
     @beforeSerialize packetName, data if @beforeSerialize?
 
-    Injector.getService("$server").parser.serialize data, packetName, (serialized) =>
+    Injector.getService("$connection").parser.serialize data, packetName, (serialized) =>
       @beforeSend packetName, data, serialized if @beforeSend? # send non serialized and serialized data
 
       @write(serialized)

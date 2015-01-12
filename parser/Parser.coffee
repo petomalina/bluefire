@@ -100,7 +100,7 @@ module.exports = class Parser
 		serialize { myInt : 5}, 'myPacket', (buffer) ->
 			#send buffer or do something else
 	###
-	setialize: (data, packetName, callback) ->
+	serialize: (data, packetName, callback) ->
 		# serialize packets from this side
 		packet = @getPacket([packetName], @isServer)
 		bufferArray = []
