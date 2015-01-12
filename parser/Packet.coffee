@@ -4,6 +4,12 @@ module.exports = class Packet
 	constructor: (@name) ->
     @packetParseData = [] # array to store parse objects
 
+  ###
+  Adds key-value pairs into the packet structure specifiing their name and type
+
+  @param structure [Array] array of key-value pairs where key is name and value is type
+  @return [Packet] current packet
+  ###
   add: (structure) ->
     for field, type of structure
       switch type
@@ -18,6 +24,8 @@ module.exports = class Packet
         when "stringle" then @addStringLE field
         when /uint8 array [0-9]+:[0-9]+/ then @addUInt8Array field, field.split(' ')[2]
         when /uint16le array [0-9]+:[0-9]+/ then @addUInt16LEArray field, field.split(' ')[2]
+
+    return @
 
   addUInt8: (name) ->
     @packetParseData.push {
