@@ -25,6 +25,9 @@ module.exports = class Application extends Connection
     super(isServer) # creates defualt parser and injects server
 
     @taskManager = new TaskManager()
+    # add task manager to the injector services
+    Injector.addService('$taskmgr', @taskManager)
+
     @services = new Services()
 
     Injector.addService('$service', @services) # add connections to injector

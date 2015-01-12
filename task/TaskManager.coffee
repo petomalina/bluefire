@@ -10,9 +10,6 @@ module.exports = class TaskManager
 	constructor: (@taskFolder = 'application/tasks/') ->
 		@tasks = { }
 
-		# add task manager to the injector services
-		Injector.addService('$taskmgr', @)
-
 	###
 	@return [Task] Returns task from tasks map or null when no task is defined
 	###
