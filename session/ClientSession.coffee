@@ -36,6 +36,21 @@ module.exports = class ClientSession extends Session
   getSocket: () =>
     return @socket
 
+  ###
+  @private
+  ###
+  beforeSerialize: (packetName, data) ->
+
+  ###
+  @private
+  ###
+  beforeSend: (packetName, data, serialized) ->
+
+  ###
+  @private
+  ###
+  afterSend: (packetName, data) ->
+
   send: (packetName, data = { }, callback) =>
     @beforeSerialize packetName, data if @beforeSerialize?
 

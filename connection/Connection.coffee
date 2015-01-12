@@ -63,6 +63,16 @@ module.exports = class Connection extends EventEmitter
     @parser.registerPacket(name, isServerPacket, condition).add(structure)
 
   ###
+  Adds structure to the parser head packet
+
+  @param structure [Object] structure of the head packet
+  @return [Packet] current head packet
+  ###
+  headPacket: (structure) ->
+    @parser.getHead().add(structure)
+    return @parser.getHead()
+
+  ###
   Replaces the current packet parser with new module
 
   @param moduleName [String] name of module to be set as a parser
