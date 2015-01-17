@@ -4,7 +4,7 @@ containt service without factory (eg. application core items)
 
 @note This class is inspired by angular dependency injection system
 ###
-class Injector
+module.exports = class Injector
 
   ###
   Initializes both, factories and services maps.
@@ -50,19 +50,19 @@ class Injector
   # @return instance[Object] created object
   #
   # Creates new instance with injected constructor
-  create: (Constructor) ->
+  create: (Constructor, dependencyList = null) ->
     dependant = () ->
     dependant.prototype = Constructor.prototype
 
     instance = new dependant()
-    @inject(Constructor, instance)
+    @inject(Constructor, instance, dependencyList)
 
     return instance
 
   # @param Constructor[function] function to inject
   # @param instance[Object] object to apply injected function to
-  inject: (Constructor, instance) ->
-    deps = @resolve Constructor
+  inject: (Constructor, instance, dependencyList = null) ->
+    deps = @resolve Constructor, dependencyList
 
     Constructor.apply instance, deps
 
@@ -93,5 +93,3 @@ class Injector
       trueArgs.push arg if arg isnt ''
 
     return trueArgs
-
-module.exports = new Injector()

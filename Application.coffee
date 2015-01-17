@@ -1,4 +1,4 @@
-global.Injector = require './di/Injector' # establish injector
+DependencyInjector = require './di/Injector'
 require './BuddyObject' # require here for global definition
 
 Async = require 'async'
@@ -21,6 +21,7 @@ module.exports = class Application extends Connection
   constructor: (isServer = true) ->
     #process.on 'uncaughtException', (err) -> # catch all uncaught exceptions here. What to do next?
     #  console.log "Uncaught exception captured : #{err}"
+    global.Injector = new DependencyInjector() #establish injector
 
     super(isServer) # creates defualt parser and injects server
 
