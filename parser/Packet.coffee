@@ -11,19 +11,20 @@ module.exports = class Packet
   @return [Packet] current packet
   ###
   add: (structure) ->
-    for field, type of structure
-      switch type
-        when "uint8" then @addUInt8 field
-        when "int8" then @addInt8 field
-        when "uint16le" then @addUInt16LE field
-        when "uint32le" then @addUInt32LE field
-        when "int16le" then @addInt16LE field
-        when "int32le" then @addInt32LE field
-        when "floatle" then @addFloatLE field
-        when "doublele" then @addDoubleLE field
-        when "stringle" then @addStringLE field
-        when /uint8 array [0-9]+:[0-9]+/ then @addUInt8Array field, field.split(' ')[2]
-        when /uint16le array [0-9]+:[0-9]+/ then @addUInt16LEArray field, field.split(' ')[2]
+    for node in structure
+      for field, type of node
+        switch type
+          when "uint8" then @addUInt8 field
+          when "int8" then @addInt8 field
+          when "uint16le" then @addUInt16LE field
+          when "uint32le" then @addUInt32LE field
+          when "int16le" then @addInt16LE field
+          when "int32le" then @addInt32LE field
+          when "floatle" then @addFloatLE field
+          when "doublele" then @addDoubleLE field
+          when "stringle" then @addStringLE field
+          when /uint8 array [0-9]+:[0-9]+/ then @addUInt8Array field, field.split(' ')[2]
+          when /uint16le array [0-9]+:[0-9]+/ then @addUInt16LEArray field, field.split(' ')[2]
 
     return @
 
@@ -66,7 +67,7 @@ module.exports = class Packet
       read: (buffer, index) ->
         return [ buffer.readUInt16LE(index), index + 2 ]
 
-      write: (buffer, data) ->
+      write: (data) ->
         addBuffer = new Buffer(2)
         addBuffer.writeUInt16LE(data, 0)
 
@@ -82,7 +83,7 @@ module.exports = class Packet
       read: (buffer, index) ->
         return [ buffer.readUInt32LE(index), index + 4 ]
 
-      write: (buffer, data) ->
+      write: (data) ->
         addBuffer = new Buffer(4)
         addBuffer.writeUInt32LE(data, 0)
 
@@ -151,43 +152,48 @@ module.exports = class Packet
 
       read: (buffer, index) ->
         data = ""
-        char = buffer.readUInt8(index)
-        i = 1
+        i = 0
 
-        while char != '\0'
+        loop
+          char = buffer.readUInt8(index+i)
+          break if char is 0
+
           data += String.fromCharCode(char)
-          char = buffer.readUInt8
+          i++
 
-        return [ data, index + i ];
+        return [ data, index + i + 1];
 
-      write: (buffer, data) ->
-        for character in data
-          buffer.writeUInt8(character, buffer.length)
+      write: (data) ->
+        buffer = new Buffer(data.length + 1)
+        #for i in [0..data.length-1]
+        #  buffer.writeUInt8(data.charCodeAt(i), i) # copy each character to the uint8 array
+        buffer.write(data, "ascii")
 
-        buffer.writeUInt8('\0', buffer.length) # terminate by zero
+        buffer.writeUInt8(0, buffer.length-1) # terminate by zero
 
-        return index + data.length + 1 # 1 = \0 at the end
+        return buffer
     }
 
     return @
 
-  addUInt8Array: (name, number) ->
+  addUInt8Array: (name, count) ->
     @packetParseData.push {
       name: name
 
       read: (buffer, index) ->
         data = []
 
-        for i in [0..number-1]
+        for i in [0..count-1]
           data.push buffer.readUInt8(index + i)
 
-        return [ data, index + number ]
+        return [ data, index + count ]
 
-      write: (buffer, data) ->
-        for i in [0..number-1]
+      write: (data) ->
+        buffer = new Buffer(data.length)
+        for i in [0..count-1]
           buffer.writeUInt8 data[i]
 
-        return index + number
+        return index + count
     }
 
     return @

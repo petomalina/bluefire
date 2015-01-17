@@ -59,8 +59,7 @@ module.exports = class Connection extends EventEmitter
   Adds given packet to the parser.
   ###
   packet: (name, isServerPacket, structure) ->
-    condition = structure[@conditionField] # get additional condition
-    @parser.registerPacket(name, isServerPacket, condition).add(structure)
+    @parser.packet(name, isServerPacket, structure).add(structure)
 
   ###
   Adds structure to the parser head packet
@@ -116,15 +115,18 @@ module.exports = class Connection extends EventEmitter
     process.stdin.on 'end', () ->
       process.stdout.write('Console commander exited')###
 
+  stop: () ->
+    @connection.stop()
+
   _onConnect: (socket) =>
     do (socket) =>
-      session = new Session(socket)
+      session = new Session(socket, @parser)
 
       @emit('connect', session) # emit new connection
 
       socket.on 'data', (data) =>
         @parser.parse data, (packetName, parsedData) =>
-          @router.call packetName, session, data
+          @router.call packetName, session, parsedData
           @onData(session, packetName, parsedData)
 
       socket.on 'disconnect', () =>

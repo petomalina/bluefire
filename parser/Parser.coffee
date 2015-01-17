@@ -3,7 +3,7 @@ Packet = require('./Packet')
 module.exports = class Parser
 
 	constructor: (@isServer) ->
-		@conditionField = 'opcode'
+		@conditionField = "opcode"
 
 		@head = new Packet("Head") # register empty head
 
@@ -18,6 +18,16 @@ module.exports = class Parser
 		return @head
 
 	###
+	sets the current head to the given
+
+	@param head [Packet] packet to be given as a head packet
+	@return [Packet] new head packet instance
+	###
+	setHead: (head) =>
+		@head = head
+		return @head
+
+	###
 	Sets the condition field to the custom one
 
 	@param conditionField[String] name of condition field in packet
@@ -25,21 +35,38 @@ module.exports = class Parser
 	setConditionField:(@conditionField) ->
 
 	###
-	Registers 
+	Registers packet by given name, location and condition
 	###
-	registerPacket: (packetName, isServerPacket, condition = null) =>
-		packet = new Packet(packetName, @packetHead)
-
+	registerPacket: (packet, isServerPacket, condition = null) =>
+		
 		if isServerPacket # switch between server and client packets
-			@serverPackets[packetName] = packet
+			@serverPackets[packet.name] = packet
 		else
-			@clientPackets[packetName] = packet
+			@clientPackets[packet.name] = packet
 
 		# register condition for current packet
 		if (@isServer and not isServerPacket) or (not @isServer and isServerPacket)
-			@registerCondition(packetName, condition)
+			@registerCondition(packet.name, condition)
 
 		return packet
+
+	packet: (name, isServerPacket, structure) ->
+		condition = @findCondition(structure) # get additional condition
+		return @registerPacket(new Packet(name, @packetHead), isServerPacket, condition)
+
+	###
+	Finds condition field value in the packet structure 
+
+	@param structure [Array] an array of structured for the packet
+	@return [String|Integer|Null] value of condition field or null if not found
+	###
+	findCondition: (structure) ->
+		for field in structure
+			for name, value of field
+				if name is @conditionField
+					return value
+
+		return null
 
 	###
 	Returns packet from collection by given type
@@ -47,7 +74,7 @@ module.exports = class Parser
 	@param packetName [String] packet name from collection
 	@param isServer [Boolean] true if server packet is needed, else false. Default: true
 	###
-	getPacket: (packetName, isServer = true) ->
+	getPacket: (packetName, isServer = true) =>
 		return if isServer then @serverPackets[packetName] else @clientPackets[packetName]
 
 	registerCondition: (packetName, condition = null) ->
@@ -58,19 +85,19 @@ module.exports = class Parser
 	Parses the given data buffer into the structure which
 	represents the given packet by conditionField from head
 
-	@param data [Buffer] buffer to be parsed
-	@param callback [Function] callback to be called after parse
+	@param buffer [Buffer] buffer to be parsed
+	@param callback [Function(name,data)] callback to be called after parse
 	@param packetname [String] optional packet name if already known
 	###
-	parse: (data, callback, packetName = null) ->
+	parse: (buffer, callback, packetName = null) ->
 		parsedData = { }
 		head = @getHead()
 		index = 0 # current byte index for parser
 
 		# read whole head
 		for parser in head.packetParseData
-			name = parser['name']
-			read = parser['read']
+			name = parser["name"]
+			read = parser["read"]
 
 			[parsedData[name], index] = read(buffer, index)
 
@@ -79,10 +106,11 @@ module.exports = class Parser
 
 		if not packet?
 			callback(null, null)
+			return
 
 		for parser in packet.packetParseData
-			name = parser['name']
-			read = parser['read']
+			name = parser["name"]
+			read = parser["read"]
 
 			[parsedData[name], index] = read(buffer, index)
 
@@ -100,16 +128,20 @@ module.exports = class Parser
 		serialize { myInt : 5}, 'myPacket', (buffer) ->
 			#send buffer or do something else
 	###
-	serialize: (data, packetName, callback) ->
+	serialize: (data, packetName, callback) =>
 		# serialize packets from this side
-		packet = @getPacket([packetName], @isServer)
+		packet = @getPacket(packetName, @isServer)
 		bufferArray = []
+
+		for parser in @getHead().packetParseData
+			name = parser['name']
+			write = parser['write']
+
+			bufferArray.push(write(data[name]))
 
 		for parser in packet.packetParseData
 			name = parser['name']
 			write = parser['write']
-
-			return new Buffer() if not data[name] # data not set, return empty buffer
 
 			bufferArray.push(write(data[name]))
 

@@ -3,7 +3,7 @@ Injector = require '../di/Injector'
 require 'should'
 
 describe 'Injector', () ->
-	injector = Injector
+	injector = new Injector
 
 	describe '#getArguments()', () ->
 		it 'should return array of arguments that should be passed into the function', () ->
