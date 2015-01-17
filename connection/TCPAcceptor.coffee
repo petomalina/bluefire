@@ -4,10 +4,15 @@ EventEmitter = require('events').EventEmitter
 module.exports = class TCPAcceptor extends EventEmitter
 
 	constructor: () ->
+		@running = false
+
 		@connection = TCP.createServer (socket) =>
 			@emit('connect', socket)
 
 	run: (port, address = null) ->
 		@connection.listen(port, address)
+		@running = true
 
-		console.log "Server is now running on port #{port}"
+	stop: () ->
+		@connection.close() if @running
+		@running = false
