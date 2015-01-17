@@ -30,7 +30,7 @@ module.exports = class Connection extends EventEmitter
     # create parser and add packets
     parserModuleName = @configuration.get('parser')
     if parserModuleName?
-      @parser(parserModuleName, @configuration.get(parserModuleName))
+      @setParser(parserModuleName, @configuration.get(parserModuleName))
 
     # if no parser is defined in the configuration, defaukt will be used instead
     try
@@ -47,7 +47,7 @@ module.exports = class Connection extends EventEmitter
         @packet(name, false, packetStructure)
 
     catch exception
-      console.dir exception
+      console.log "Connection install exception: #{exception}"
       # no packets found
 
     # install router
@@ -76,7 +76,7 @@ module.exports = class Connection extends EventEmitter
 
   @param moduleName [String] name of module to be set as a parser
   ###
-  parser: (moduleName, options = {}) =>
+  setParser: (moduleName, options = {}) =>
     parserModule = require(moduleName)
     @parser = Injector.create(parserModule, options)
 
