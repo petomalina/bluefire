@@ -1,4 +1,3 @@
-assert = require("assert")
 Configuration = require '../config/Configuration'
 require 'should'
 
@@ -15,20 +14,20 @@ describe 'Configuration', () ->
 
 	describe '#get()', () ->
 		it 'should get key-value pair from configuration', () ->
-			assert.equal 'value', conf.get 'key'
-			assert.equal null, conf.get 'key2'
-			assert.notEqual null, conf.get 'testkey'
+			'value'.should.eql(conf.get('key'))
+			(conf.get('key2') is null).should.be.true
+			(conf.get('testkey') is null).should.not.be.true
 
 	describe '#length', () ->
 		it 'should return length of current configuration', () ->
-			assert.equal Object.keys(conf.data).length, conf.length()
+			Object.keys(conf.data).length.should.be.eql(conf.length())
 
 	describe '#remove()', () ->
 		it 'should remove key-value pair from configuration', () ->
 			conf.remove 'key2'
-			assert.equal 2, conf.length()
+			conf.length().should.be.eql(2)
 			conf.remove 'key'
-			assert.equal null, conf.get 'key'
+			(conf.get('key') is null).should.not.be.true
 
 	describe '#empty()', () ->
 		it 'should return false is configuration is empty', () ->
