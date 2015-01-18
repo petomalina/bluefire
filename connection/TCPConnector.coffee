@@ -1,5 +1,5 @@
-TCP = require 'net'
-EventEmitter = require('events').EventEmitter
+TCP = require "net"
+EventEmitter = require("events").EventEmitter
 
 module.exports = class TCPConnector extends EventEmitter
 
@@ -8,10 +8,14 @@ module.exports = class TCPConnector extends EventEmitter
 
 		@connection = new TCP.Socket()
 
+		@connection.on "error", (error) =>
+			#@emit("error", error.code)
+			@running = false
+
 	run: (port, address) ->
 		@connection.connect port, address, () =>
 			@running = true
-			@emit('connect', @connection)
+			@emit("connect", @connection)
 
 	stop: () ->
 		@connection.end() if @running

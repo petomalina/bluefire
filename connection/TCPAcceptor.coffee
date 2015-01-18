@@ -9,9 +9,12 @@ module.exports = class TCPAcceptor extends EventEmitter
 		@connection = TCP.createServer (socket) =>
 			@emit('connect', socket)
 
+		@connection.on "listening", () =>
+			@running = true
+			@emit("listening")
+
 	run: (port, address = null) ->
 		@connection.listen(port, address)
-		@running = true
 
 	stop: () ->
 		@connection.close() if @running
