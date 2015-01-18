@@ -1,0 +1,60 @@
+require "should"
+TCPConnector = require "../connection/TCPConnector"
+TCPAcceptor = require "../connection/TCPAcceptor"
+
+describe "TCPConnector", () ->
+
+	describe "Basic tests", () ->
+
+		it "should construct the tcpconnector correctly", () ->
+			connector = new TCPConnector()
+
+		it "should try to run the connector", () ->
+			connector = new TCPConnector()
+
+			connector.run(8888, "127.0.0.1")
+			connector.running.should.be.false
+
+		it "should try to stop not running connector", () ->
+			connector = new TCPConnector()
+			connector.stop()
+
+describe "TCPAcceptor", () ->
+
+	describe "Basic tests", () ->
+
+		it "should construct the acceptor correctly", () ->
+			acceptor = new TCPAcceptor()
+
+		it "should try to run and stop the acceptor", (done) ->
+			acceptor = new TCPAcceptor()
+
+			acceptor.on "listening", () ->
+				acceptor.running.should.be.true
+				acceptor.stop()
+				done()
+
+			acceptor.run(8888)
+
+		it "should try to stop non running acceptor", () ->
+			acceptor = new TCPAcceptor()
+
+			acceptor.stop()
+
+describe "TCPAcceptor and TCPConnector cooperation", () ->
+
+	describe "Basic tests", () ->
+
+		it "should connect both to each other", (done) ->
+			acceptor = new TCPAcceptor()
+			connector = new TCPConnector()
+
+			acceptor.on "connect", (socket) ->
+				connector.stop()
+				acceptor.stop()
+				done()
+
+			acceptor.on "listening", () ->
+				connector.run(8888, '127.0.0.1')
+
+			acceptor.run(8888)

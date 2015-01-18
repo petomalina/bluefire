@@ -15,8 +15,10 @@ describe 'Configuration', () ->
 	describe '#get()', () ->
 		it 'should get key-value pair from configuration', () ->
 			'value'.should.eql(conf.get('key'))
-			(conf.get('key2') is null).should.be.true
 			(conf.get('testkey') is null).should.not.be.true
+
+		it 'should try to retrieve the null value from key', () ->
+			(conf.get('key2') is null).should.be.true
 
 	describe '#length', () ->
 		it 'should return length of current configuration', () ->
@@ -29,8 +31,13 @@ describe 'Configuration', () ->
 			conf.remove 'key'
 			(conf.get('key') is null).should.not.be.true
 
+		it 'should try to remove non-existing key', () ->
+			conf.remove('key2') # no error should be here
+
 	describe '#empty()', () ->
-		it 'should return false is configuration is empty', () ->
+		it 'should return false if configuration is empty and if not, empty it', () ->
 			conf.empty().should.be.false
 			conf.remove 'testkey'
+
+		it 'should check the configuration if it\'s empty (is empty)', () ->
 			conf.empty().should.be.true
