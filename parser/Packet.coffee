@@ -1,8 +1,9 @@
 
 module.exports = class Packet
 
-	constructor: (@name) ->
-    @packetParseData = [] # array to store parse objects
+	constructor: (@name, @head) ->
+    @packetParseData = [ ] # array to store parse objects
+    @predefinedValues = { }
 
   ###
   Adds key-value pairs into the packet structure specifiing their name and type
@@ -13,6 +14,10 @@ module.exports = class Packet
   add: (structure) ->
     for node in structure
       for field, type of node
+        if @isAlreadyDefined(field)
+          @predefinedValues[field] = type # already defined (wants default value assign)
+          continue
+
         switch type
           when "uint8" then @addUInt8 field
           when "int8" then @addInt8 field
@@ -27,6 +32,16 @@ module.exports = class Packet
           when /uint16le array [0-9]+:[0-9]+/ then @addUInt16LEArray field, field.split(' ')[2]
 
     return @
+
+  isAlreadyDefined: (name) =>
+    if @head?
+      for parser in @head.packetParseData
+        return true if parser.name is name
+
+    for parser in @packetParseData
+      return true if parser.name is name
+
+    return false
 
   addUInt8: (name) ->
     @packetParseData.push {

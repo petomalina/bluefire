@@ -2,7 +2,7 @@ Packet = require('./Packet')
 
 module.exports = class Parser
 
-	constructor: (@isServer) ->
+	constructor: (@isServer, @head) ->
 		@conditionField = "opcode"
 
 		@head = new Packet("Head") # register empty head
@@ -50,9 +50,13 @@ module.exports = class Parser
 
 		return packet
 
-	packet: (name, isServerPacket, structure) ->
+	packet: (name, isServerPacket, structure) =>
 		condition = @findCondition(structure) # get additional condition
-		return @registerPacket(new Packet(name, @packetHead), isServerPacket, condition)
+
+		packet = new Packet(name, @head)
+		packet.add(structure)
+
+		return @registerPacket(packet, isServerPacket, condition)
 
 	###
 	Finds condition field value in the packet structure 
@@ -133,15 +137,19 @@ module.exports = class Parser
 		packet = @getPacket(packetName, @isServer)
 		bufferArray = []
 
-		for parser in @getHead().packetParseData
+		for parser in packet.head.packetParseData
 			name = parser['name']
 			write = parser['write']
+
+			data[name] = packet.predefinedValues[name] if not data[name] and packet.predefinedValues[name]?
 
 			bufferArray.push(write(data[name]))
 
 		for parser in packet.packetParseData
 			name = parser['name']
 			write = parser['write']
+
+			data[name] = packet.predefinedValues[name] if not data[name] and packet.predefinedValues[name]?
 
 			bufferArray.push(write(data[name]))
 
