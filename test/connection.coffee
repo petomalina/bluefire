@@ -2,6 +2,8 @@ require "should"
 TCPConnector = require "../connection/TCPConnector"
 TCPAcceptor = require "../connection/TCPAcceptor"
 
+testingPort = 9999
+
 describe "TCPConnector", () ->
 
 	describe "Basic tests", () ->
@@ -12,7 +14,7 @@ describe "TCPConnector", () ->
 		it "should try to run the connector", () ->
 			connector = new TCPConnector()
 
-			connector.run(8888, "127.0.0.1")
+			connector.run(testingPort, "127.0.0.1")
 			connector.running.should.be.false
 
 		it "should try to stop not running connector", () ->
@@ -34,7 +36,7 @@ describe "TCPAcceptor", () ->
 				acceptor.stop()
 				done()
 
-			acceptor.run(8888)
+			acceptor.run(testingPort)
 
 		it "should try to stop non running acceptor", () ->
 			acceptor = new TCPAcceptor()
@@ -55,6 +57,6 @@ describe "TCPAcceptor and TCPConnector cooperation", () ->
 				done()
 
 			acceptor.on "listening", () ->
-				connector.run(8888, '127.0.0.1')
+				connector.run(testingPort, '127.0.0.1')
 
-			acceptor.run(8888)
+			acceptor.run(testingPort)

@@ -17,7 +17,7 @@ describe "Packet", () ->
 			packetHead.name.should.be.eql("head")
 			packetHead.packetParseData.should.be.eql([])
 
-			packet = new Packet("name")
+			packet = new Packet("name", packetHead)
 			packet.name.should.be.eql("name")
 			packet.packetParseData.should.be.eql([])
 

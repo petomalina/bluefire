@@ -1,6 +1,8 @@
 require "should"
 Application = require "../Application"
 
+testingPort = 9999
+
 describe "Application", () ->
 	server = null
 	client = null
@@ -26,8 +28,8 @@ describe "Application", () ->
 				$connection.on "connect", (session) ->
 					done()
 
-			server.run(8888)
-			client.run(8888, "127.0.0.1")
+			server.run(testingPort)
+			client.run(testingPort, "127.0.0.1")
 
 	describe "Simple application test with ping", () ->
 		it "should ping server application from client after connect", (done) ->
@@ -65,5 +67,5 @@ describe "Application", () ->
 						value: "abc"
 					}
 
-			server.run(8888)
-			client.run(8888, "127.0.0.1")
+			server.run(testingPort)
+			client.run(testingPort, "127.0.0.1")
