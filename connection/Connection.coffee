@@ -37,7 +37,7 @@ module.exports = class Connection extends EventEmitter
       packets = require("#{global.CurrentWorkingDirectory}/configs/packets")
 
       if packets.Head? # register head if found in collection
-        @parser.getHead().add(packets.head)
+        @parser.getHead().add(packets.Head)
 
       # register all packets
       for name, packetStructure of packets.ServerPackets
