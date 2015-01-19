@@ -16,20 +16,20 @@ module.exports = class Connection extends EventEmitter
     @parser = Injector.create(Parser, { isServer : @isServer }) # require default parsr
 
     # add server as service
-    Injector.addService('$connection', @)
+    Injector.addService("$connection", @)
 
     @router = new Router()
-    Injector.addService('$router', @router)
+    Injector.addService("$router", @router)
 
     if @isServer
-      @connection = new(require('./TCPAcceptor'))
+      @connection = new(require("./TCPAcceptor"))
     else
-      @connection = new(require('./TCPConnector'))
+      @connection = new(require("./TCPConnector"))
 
   install: (@configuration, routerConfiguration, callback) =>
     # create parser and add packets
-    parserModuleName = @configuration.get('parser')
-    if parserModuleName?
+    parserModuleName = @configuration.get("parser")
+    if parserModuleName? and parserModuleName isnt "default"
       @setParser(parserModuleName, @configuration.get(parserModuleName))
 
     # if no parser is defined in the configuration, defaukt will be used instead
