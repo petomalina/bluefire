@@ -1,5 +1,5 @@
-FileLoader = require '../fileLoader'
-Task = require './Task'
+FileLoader = require "../fileLoader"
+Task = require "./Task"
 
 ###
 Class that stores previously defined tasks. It also auto-loads all tasks
@@ -7,7 +7,8 @@ from application/tasks folder.
 ###
 module.exports = class TaskManager
 
-	constructor: (@taskFolder = 'application/tasks/') ->
+	constructor: () ->
+		@taskFolder = "#{global.CurrentWorkingDirectory}/tasks/"
 		@tasks = { }
 
 	###
@@ -40,7 +41,7 @@ module.exports = class TaskManager
 				args = Injector.resolve Task, taskOptions
 
 				# get task name by the name of the file without ending
-				@tasks[moduleName.split('.')[0]] = new Task(args...)
+				@tasks[moduleName.split(".")[0]] = new Task(args...)
 				console.log "New task registered: [#{moduleName}]"
 
 			callback(null, 1)

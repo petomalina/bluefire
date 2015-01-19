@@ -22,12 +22,13 @@ module.exports = class FileLoader
       @options.recursive = false
 
     if not @options.root?
-      @options.root = '/node_modules/'
+      @options.root = ''
 
-    directory = process.cwd() + @options.root + path
+    directory = @options.root + path
 
     FileSystem.readdir directory, (err, files) =>
       if err?
+        console.log err
         callback([])
       else
         callback(files)

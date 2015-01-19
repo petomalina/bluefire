@@ -19,6 +19,8 @@ module.exports = class Application extends Connection
   Creates just basic applicatin with parser and tcp setup
   ###
   constructor: (isServer = true) ->
+    global.CurrentWorkingDirectory = process.cwd() # set current dit to global for easy pathing 
+    
     #process.on 'uncaughtException', (err) -> # catch all uncaught exceptions here. What to do next?
     #  console.log "Uncaught exception captured : #{err}"
     global.Injector = new DependencyInjector() #establish injector
@@ -32,8 +34,6 @@ module.exports = class Application extends Connection
     @services = new Services()
 
     Injector.addService('$service', @services) # add connections to injector
-
-    global.CurrentWorkingDirectory = process.cwd() # set current dit to global for easy pathing 
 
   ###
   Installs the whole application using structured approach
