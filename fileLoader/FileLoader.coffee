@@ -28,7 +28,6 @@ module.exports = class FileLoader
 
     FileSystem.readdir directory, (err, files) =>
       if err?
-        console.log err
         callback([])
       else
         callback(files)
