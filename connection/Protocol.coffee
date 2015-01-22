@@ -1,4 +1,4 @@
 
 module.exports = class Protocol
 
-	constructor: () ->
+  constructor: () ->

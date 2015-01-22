@@ -3,20 +3,20 @@ EventEmitter = require("events").EventEmitter
 
 module.exports = class TCPConnector extends EventEmitter
 
-	constructor: () ->
-		@running = false
+  constructor: () ->
+    @running = false
 
-		@connection = new TCP.Socket()
+    @connection = new TCP.Socket()
 
-		@connection.on "error", (error) =>
-			#@emit("error", error.code)
-			@running = false
+    @connection.on "error", (error) =>
+      #@emit("error", error.code)
+      @running = false
 
-	run: (port, address) ->
-		@connection.connect port, address, () =>
-			@running = true
-			@emit("connect", @connection)
+  run: (port, address) ->
+    @connection.connect port, address, () =>
+      @running = true
+      @emit("connect", @connection)
 
-	stop: () ->
-		@connection.end() if @running
-		@running = false
+  stop: () ->
+    @connection.end() if @running
+    @running = false
