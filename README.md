@@ -10,7 +10,7 @@ Lightweight TCP framework based on [node.js](http://nodejs.org/) and written in 
 
 - **Manipulate with real objects, not buffers** - Whether you want to send or receive, you will never have to handle bytes. Construct real object, framework will handle everything else.
 
-- **Injections, injections everywhere** - Why should you global objects, when you can do that in better way? [Core Services page](https://github.com/Gelidus/bluefire/wiki/Core-services) will provide you with basic information.
+- **Injections, injections everywhere** - Why should you globalize objects, when you can access them in cool way? [Core Services page](https://github.com/Gelidus/bluefire/wiki/Core-services) will provide you with more information.
 
 Feel free to vote on [Bluefire Trello](https://trello.com/b/tltmSctv/bluefire) for features you want to be in the framework first!
 
@@ -37,4 +37,4 @@ Check [wiki](https://github.com/Gelidus/bluefire/wiki/ORM-ODM-Compatibility) for
 
 Any contributions to the project are welcome! See Issues or Future features to find out what you can do. Also feel free to contact [me](https://github.com/Gelidus) :)
 
-Before trying to contribute, please read [Contribution to Bluefire](https://github.com/Gelidus/bluefire/wiki/Contribute-to-Bluefire)
+Before trying to contribute, please read [Contribute to Bluefire](https://github.com/Gelidus/bluefire/wiki/Contribute-to-Bluefire)
