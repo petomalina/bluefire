@@ -1,7 +1,7 @@
 
 module.exports = class Packet
 
-	constructor: (@name, @head) ->
+  constructor: (@name, @head) ->
     @packetParseData = [ ] # array to store parse objects
     @predefinedValues = { }
 
@@ -34,6 +34,7 @@ module.exports = class Packet
     return @
 
   isAlreadyDefined: (name) =>
+
     if @head?
       for parser in @head.packetParseData
         return true if parser.name is name
@@ -115,8 +116,11 @@ module.exports = class Packet
       read: (buffer, index) ->
         return [ buffer.readInt16LE(index), index + 2 ]
 
-      write: (buffer, data) ->
-        return [ buffer.writeInt16LE(data, buffer.length), index + 2 ]
+      write: (data) ->
+        addBuffer = new Buffer(2)
+        addBuffer.writeInt16LE(data, buffer.length)
+
+        return addBuffer
     }
 
     return @
@@ -128,8 +132,11 @@ module.exports = class Packet
       read: (buffer, index) ->
         return [ buffer.readInt32LE(index), index + 4 ]
 
-      write: (buffer, data) ->
-        return [ buffer.writeInt32LE(data, buffer.length), index + 4 ]
+      write: (data) ->
+        addBuffer = new Buffer(4)
+        addBuffer.writeInt32LE(data, 0)
+
+        return addBuffer
     }
 
     return @
@@ -141,8 +148,11 @@ module.exports = class Packet
       read: (buffer, index) ->
         return [ buffer.readDoubleLE(index), index + 8 ]
 
-      write: (buffer, data) ->
-        return [ buffer.writeDoubleLE(data, buffer.length), index + 8 ]
+      write: (data) ->
+        addBuffer = new Buffer(8)
+        addBuffer.writeDoubleLE(data, 0)
+
+        return addBuffer
     }
 
     return @
@@ -154,8 +164,11 @@ module.exports = class Packet
       read: (buffer, index) ->
         return [ buffer.readFloatLE(index), index + 4 ]
 
-      write: (buffer, data) ->
-        return [ buffer.writeFloatLE(data, buffer.length), index + 4 ]
+      write: (data) ->
+        addBuffer = new Buffer(4)
+        addBuffer.writeFloatLE(data, 0)
+
+        return addBuffer
     }
 
     return @
