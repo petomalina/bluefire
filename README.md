@@ -8,9 +8,11 @@ Lightweight TCP framework based on [node.js](http://nodejs.org/) and written in 
 
 - **Take what you need** - Whether you need a simple application(or prototype), or you want framework to make application more structured and less error-prone, you will have that. These two approaches can be also mixed together (see [examples](https://github.com/Gelidus/bluefire-examples))
 
-- **Manipulate with real objects, not buffers** - Whether you want to send or receive, you will never have handle bytes. Construct real object, framework will handle everything else.
+- **Manipulate with real objects, not buffers** - Whether you want to send or receive, you will never have to handle bytes. Construct real object, framework will handle everything else.
 
-- **Injections, injections everywhere** - Why use globals, when you can do that in better way? [Core Services page](https://github.com/Gelidus/bluefire/wiki/Core-services) will provide you with basic information.
+- **Injections, injections everywhere** - Why should you global objects, when you can do that in better way? [Core Services page](https://github.com/Gelidus/bluefire/wiki/Core-services) will provide you with basic information.
+
+Feel free to vote on [Bluefire Trello](https://trello.com/b/tltmSctv/bluefire) for features you want to be in the framework first!
 
 ## Installation [![npm version](https://badge.fury.io/js/bluefire.svg)](http://badge.fury.io/js/bluefire)
 
