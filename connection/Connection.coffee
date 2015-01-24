@@ -125,6 +125,7 @@ module.exports = class Connection extends EventEmitter
   _onConnect: (socket) =>
     do (socket) =>
       session = new Session(socket, @parser)
+      @protocol.initializeSession(session) # initialize session for current protocol
 
       @emit('connect', session) # emit new connection
 
