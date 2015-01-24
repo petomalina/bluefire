@@ -49,16 +49,14 @@ describe "Packet", () ->
       parser.registerPacket(packet, false, 0)
       Object.keys(parser.clientPackets).length.should.be.eql(1)
 
-      parser.registerPacket(packet, true)
+      parser.registerPacket(packet, true, 0)
       Object.keys(parser.serverPackets).length.should.be.eql(1)
 
     it "should serialize and parse packet", (done) ->
       parser.serialize {
-        opcode: 0
         data: 5
         string: "abc"
       }, "name", (serialized) ->
-
         parser.parse serialized, (name, data) ->
           "name".should.be.eql(name)
           data["string"].should.be.eql("abc")
@@ -73,7 +71,7 @@ describe "Packet", () ->
       parser.setHead(packetHead)
       parser.getHead().packetParseData.length.should.be.eql(1)
 
-    it "should add packet with array into the parser", () ->
+    it "should add packet with array into the parser", (done) ->
       arrayPacketOne = new Packet("arrayone", packetHead)
       arrayPacketTwo = new Packet("arraytwo", packetHead)
 
@@ -85,8 +83,28 @@ describe "Packet", () ->
 
       parser.registerPacket(arrayPacketOne, false, 0)
       parser.registerPacket(arrayPacketOne, true, 0)
-      parser.registerPacket(arrayPacketTwo, false, 0)
-      parser.registerPacket(arrayPacketTwo, true, 0)
+      parser.registerPacket(arrayPacketTwo, false, 1)
+      parser.registerPacket(arrayPacketTwo, true, 1)
+
+      (parser.getPacket("arrayone")?).should.be.true # existence check
+
+      parser.serialize {
+        #opcode: 0
+        numbers: [1, 2, 3, 4]
+      }, "arrayone", (serialized) ->
+        parser.parse serialized, (name, data) ->
+          (data?).should.be.true
+          data.opcode.should.be.eql(0)
+          data.numbers.should.be.eql([1,2,3,4])
+          done()
+
+    it "should try to serialize and parse second array packet", (done) ->
+
+      parser.serialize {
+        #opcode: 1
+        numbers: [9, 2, 1, 4, 3, 6]
+      }, "arraytwo", (serialized) ->
+        done()
 
   describe "Advanced #add() method packet tests", () ->
 
@@ -124,7 +142,7 @@ describe "Packet", () ->
       ]
 
       parser.registerPacket(firstPacket, false, 0) # client packet
-      parser.registerPacket(firstPacket, true) # server packet
+      parser.registerPacket(firstPacket, true, 0) # server packet
 
       parser.serialize {
         something: 12
