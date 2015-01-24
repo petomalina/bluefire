@@ -3,6 +3,7 @@ FileLoader = require '../fileLoader/FileLoader'
 Parser = require '../parser/Parser'
 Router = require '../routing/Router'
 Configuration = require '../config/Configuration'
+Protocol = require './Protocol'
 
 EventEmitter = require('events').EventEmitter
 
@@ -12,11 +13,14 @@ Main server class which stores tcp connection, packets and parser
 module.exports = class Connection extends EventEmitter
 
   constructor: (@isServer) ->
-    # @property [Object] Parser instance
-    @parser = Injector.create(Parser, { isServer : @isServer }) # require default parsr
-
     # add server as service
     Injector.addService("$connection", @)
+
+    @protocol = new Protocol() # create new protocol and add it to injector
+    Injector.addService("$protocol", @)
+
+    # @property [Object] Parser instance
+    @parser = Injector.create(Parser, { isServer : @isServer }) # require default parsr
 
     @router = new Router()
     Injector.addService("$router", @router)
