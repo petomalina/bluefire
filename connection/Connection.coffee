@@ -17,7 +17,7 @@ module.exports = class Connection extends EventEmitter
     Injector.addService("$connection", @)
 
     @protocol = new Protocol() # create new protocol and add it to injector
-    Injector.addService("$protocol", @)
+    Injector.addService("$protocol", @protocol)
 
     # @property [Object] Parser instance
     @parser = Injector.create(Parser, { isServer : @isServer }) # require default parsr
@@ -129,10 +129,11 @@ module.exports = class Connection extends EventEmitter
 
       @emit('connect', session) # emit new connection
 
-      socket.on 'data', (data) =>
-        @parser.parse data, (packetName, parsedData) =>
-          @router.call packetName, session, parsedData
-          @onData(session, packetName, parsedData)
+      socket.on 'data', (buffer) =>
+        @protocol.receive buffer, session, (data) =>
+          @parser.parse data, (packetName, parsedData) =>
+            @router.call packetName, session, parsedData
+            @onData(session, packetName, parsedData)
 
       socket.on 'disconnect', () =>
         socket.destroy()
