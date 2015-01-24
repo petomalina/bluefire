@@ -29,6 +29,7 @@ module.exports = class Packet
           when "stringle" then @addStringLE field
           when /uint8 array [0-9]+:[0-9]+/ then @addUInt8Array field, field.split(' ')[2]
           when /uint16le array [0-9]+:[0-9]+/ then @addUInt16LEArray field, field.split(' ')[2]
+          when /uint32le array [0-9]+:[0-9]+/ then @addUInt32LEArray field, field.split(' ')[2]
 
     return @
 
@@ -246,7 +247,29 @@ module.exports = class Packet
       write: (data) ->
         addBuffer = new Buffer(count)
         for i in [0..count-1]
-          addBuffer.writeUInt8(data[i], i)
+          addBuffer.writeUInt16LE(data[i], i)
+
+        return addBuffer
+    }
+
+    return @
+
+  addUInt32LEArray: (name, count) ->
+    @packetParseData.push {
+      name: name
+
+      read: (buffer, index) ->
+        data = []
+
+        for i in [0..count-1]
+          data.push(buffer.readUInt32LE(index + i))
+
+        return [ data, index + count ]
+
+      write: (data) ->
+        addBuffer = new Buffer(count)
+        for i in [0..count-1]
+          addBuffer.writeUInt32LE(data[i], i)
 
         return addBuffer
     }
