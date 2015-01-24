@@ -14,9 +14,8 @@ module.exports = class Packet
   add: (structure) ->
     for node in structure
       for field, type of node
-        if @isAlreadyDefined(field)
-          @predefinedValues[field] = type # already defined (wants default value assign)
-          continue
+        # try to add predefined value, if field already exists, we should continue
+        continue if @addPredefinedValue(field, type)
 
         switch type
           when "uint8" then @addUInt8 field
@@ -34,7 +33,6 @@ module.exports = class Packet
     return @
 
   isAlreadyDefined: (name) =>
-
     if @head?
       for parser in @head.packetParseData
         return true if parser.name is name
@@ -43,6 +41,13 @@ module.exports = class Packet
       return true if parser.name is name
 
     return false
+
+  addPredefinedValue: (field, value) =>
+    if @isAlreadyDefined(field)
+      @predefinedValues[field] = value # already defined (wants default value assign)  
+      return true
+    else
+      return false  
 
   addUInt8: (name) ->
     @packetParseData.push {
@@ -212,37 +217,38 @@ module.exports = class Packet
         data = []
 
         for i in [0..count-1]
-          data.push buffer.readUInt8(index + i)
+          data.push(buffer.readUInt8(index + i))
 
         return [ data, index + count ]
 
       write: (data) ->
-        buffer = new Buffer(data.length)
+        addBuffer = new Buffer(count)
         for i in [0..count-1]
-          buffer.writeUInt8 data[i]
+          addBuffer.writeUInt8(data[i], i)
 
-        return index + count
+        return addBuffer
     }
 
     return @
 
-  addUInt16LEArray: (name, number) ->
+  addUInt16LEArray: (name, count) ->
     @packetParseData.push {
       name: name
 
       read: (buffer, index) ->
         data = []
 
-        for i in [0..number-1]
-          data.push(buffer.readUInt16LE(inde + i))
+        for i in [0..count-1]
+          data.push(buffer.readUInt16LE(index + i))
 
-        return [ data, index + number ]
+        return [ data, index + count ]
 
-      write: (buffer, data) ->
-        for i in [0..number-1]
-          buffer.writeUInt8(data[i])
+      write: (data) ->
+        addBuffer = new Buffer(count)
+        for i in [0..count-1]
+          addBuffer.writeUInt8(data[i], i)
 
-        return index + number
+        return addBuffer
     }
 
     return @

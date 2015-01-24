@@ -47,6 +47,8 @@ module.exports = class Parser
 		# register condition for current packet
 		if (@isServer and not isServerPacket) or (not @isServer and isServerPacket)
 			@registerCondition(packet.name, condition)
+		else
+			packet.addPredefinedValue(@conditionField, condition) # adds as predefined value
 
 		return packet
 
@@ -141,7 +143,7 @@ module.exports = class Parser
 			name = parser['name']
 			write = parser['write']
 
-			data[name] = packet.predefinedValues[name] if not data[name] and packet.predefinedValues[name]?
+			data[name] = packet.predefinedValues[name] if not data[name]? and packet.predefinedValues[name]?
 
 			bufferArray.push(write(data[name]))
 
@@ -149,7 +151,7 @@ module.exports = class Parser
 			name = parser['name']
 			write = parser['write']
 
-			data[name] = packet.predefinedValues[name] if not data[name] and packet.predefinedValues[name]?
+			data[name] = packet.predefinedValues[name] if not data[name]? and packet.predefinedValues[name]?
 
 			bufferArray.push(write(data[name]))
 
