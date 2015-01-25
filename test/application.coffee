@@ -1,5 +1,6 @@
 require "should"
-Application = require "../Application"
+ServerApplication = require("../").ServerApplication
+ClientApplication = require("../").ClientApplication
 
 testingPort = 9999
 
@@ -13,19 +14,19 @@ describe "Application", () ->
 
 	describe "server construction", () ->
 		it "should construct the server instance without any errors", () ->
-			server = new Application(true)
+			server = new ServerApplication
 
 	describe "client construction", () ->
 		it "should construct the client instance without any errors", () ->
-			client = new Application(false)
+			client = new ClientApplication
 
 	describe "simple application test", () ->
 		it "should connect server and client to each other", (done) ->
-			server = new Application(true)
-			client = new Application(false)
+			server = new ServerApplication
+			client = new ClientApplication
 
 			server.config ($connection) ->
-				$connection.on "connect", (session) ->
+				$connection.on "connect", () ->
 					done()
 
 			server.run(testingPort)
@@ -33,7 +34,7 @@ describe "Application", () ->
 
 	describe "Simple application test with ping", () ->
 		it "should ping server application from client after connect", (done) ->
-			server = new Application(true)
+			server = new ServerApplication
 
 			server.config ($connection, $router) ->
 				$connection.headPacket [
@@ -50,9 +51,9 @@ describe "Application", () ->
 					data["value"].should.eql("abc")
 					done()
 
-			client = new Application(false)
+			client = new ClientApplication
 
-			client.config ($connection, $router) ->
+			client.config ($connection) ->
 				$connection.headPacket [
 					opcode: "uint8"
 				]
