@@ -1,10 +1,13 @@
 {
   "name": "bluefire",
-  "version": "0.0.27a",
+  "version": "0.0.28a",
   "description": "Lightweight tcp framework",
   "main": "index.coffee",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "bluefire": "./bin/bluefire.js"
   },
   "repository": {
     "type": "git",
