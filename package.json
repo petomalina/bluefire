@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "async": "~0.9.0",
-    "sequelize": "~2.0.0-rc1"
+    "sequelize": "~2.0.0-rc1",
+    "ncp": "~1.0.1"
   },
   "devDependencies": {
     "should": "^4.4.4",
