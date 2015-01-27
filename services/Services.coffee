@@ -117,7 +117,7 @@ module.exports = class Services
   Adds service to the service map. This method is synchronous.
 
   @param name [String] the name of service
-  @param moduleName [String] name of module to be loaded
+  @param module [String|Class] name of module to be loaded or it's class
   @param options [Object] options passed to constructor of module
   @param beforeCreate [Function] callback called before construction of service
   @param afterCreate [Function] callback called after service construction
@@ -134,8 +134,8 @@ module.exports = class Services
       }
     })
   ###
-  service: (name, moduleName, options, beforeCreate, afterCreate) ->
-    Module = require(moduleName)
+  service: (name, module, options = { }, beforeCreate, afterCreate) ->
+    Module = if typeof module is "string" then require(module) else module
 
     moduleArgs = Injector.resolve(Module, options)
 
