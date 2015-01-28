@@ -2,14 +2,26 @@ FileLoader = require "../fileLoader"
 Task = require "./Task"
 
 ###
-Class that stores previously defined tasks. It also auto-loads all tasks
-from application/tasks folder.
+	Class that stores previously defined tasks. It also auto-loads all tasks
+	from application/tasks folder.
+
+  @author Gelidus
+  @version 0.0.3a
 ###
 module.exports = class TaskManager
 
 	constructor: () ->
-		@taskFolder = "#{global.CurrentWorkingDirectory}/tasks/"
 		@tasks = { }
+
+	###
+  	Registers new task into the current TaskManager
+  ###
+	task: (name, options = { }, action) ->
+		args = Injector.resolve Task, { options : options, action: action }
+
+		# get task name by the name of the file without ending
+		@tasks[name] = new Task(args...)
+		return @tasks[name]
 
 	###
 	@return [Task] Returns task from tasks map or null when no task is defined
@@ -30,18 +42,18 @@ module.exports = class TaskManager
 	Installs the task manager.
 
 	@param callback [Function] callback to be performed after install
+  @param taskFOlder [String] Folder to look into for tasks
 	###
-	install: (callback) =>
+	install: (callback, taskFolder = "#{global.CurrentWorkingDirectory}/tasks/") =>
 		loader = new FileLoader()
 
-		loader.find @taskFolder, (files) =>
+		loader.find taskFolder, (files) =>
 			for moduleName in files
-				taskOptions = require(@taskFolder + moduleName)
+				# ignore modules that won't meet conditions
+				continue if not /(\w+(Task|Job))\..+/.test(moduleName)
 
-				args = Injector.resolve Task, taskOptions
-
+				taskOptions = require(taskFolder + moduleName)
 				# get task name by the name of the file without ending
-				@tasks[moduleName.split(".")[0]] = new Task(args...)
-				console.log "New task registered: [#{moduleName}]"
+				@task(moduleName.split(".")[0], taskOptions.options, taskOptions.action)
 
-			callback(null, 1)
+			callback(null, 1) if callback?

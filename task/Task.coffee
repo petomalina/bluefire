@@ -1,4 +1,10 @@
+###
+  Main class that represents registered task. This class is using TaskAction
+  to provide context for more Tasks with same type.
 
+  @author Gelidus
+  @version 0.0.3a
+###
 module.exports = class Task
 
 	constructor: (@action, @options = { }) ->
@@ -6,16 +12,31 @@ module.exports = class Task
 			@options.repeat = false
 		else
 			if not @options.repeatTimes?
-				@options.repeatTimes = 2
+				@options.repeatTimes = 0
 
 		if not @options.timeout?
-			@options.timeout = 1000
+			@options.timeout = 0
 
-	perform: (context) =>
-		action = new TaskAction(context, @options, @action)
+	###
+  	Method that will perform current task by creating TaskAction with the
+  	given context and options (may be changed).
+
+  	@param context [Object] Any object with which should task manipulate
+  	@param options [Object] Options to be passed into the TaskAction
+  	@return action [TaskAction] Currently created TaskAction
+  ###
+	perform: (context, options = @options) =>
+		action = new TaskAction(context, options, @action)
 
 		return action
 
+###
+  This class represents each task being made witing the given context.
+  Options are derived from the main Task class.
+
+  @author Gelidus
+  @version 0.0.3a
+###
 class TaskAction
 
 	constructor: (@context, @options, @callback) ->
@@ -25,6 +46,10 @@ class TaskAction
 		else
 			@action = setTimeout(@perform, @options.timeout)
 
+	###
+  	Stops the current TaskAction, any currently executing callbacks
+  	won't be stopped, but no more will be executed.
+	###
 	stop: () =>
 		if not @action?
 			return
