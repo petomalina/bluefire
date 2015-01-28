@@ -1,6 +1,12 @@
-FileLoader = require '../fileLoader/FileLoader' # get the fileloader
-Async = require 'async'
+FileLoader = require("../fileLoader/FileLoader") # get the fileloader
+Async = require("async")
 
+###
+  Class that encapsulates logic for services including model services
+
+  @author Gelidus
+  @version 0.0.3a
+###
 module.exports = class Services
 
   ###
@@ -31,15 +37,12 @@ module.exports = class Services
     }
   ###
   constructor: () ->
-    #@adapter = null # give adapter place in object
-    @modelsFolder = "#{global.CurrentWorkingDirectory}/models/"
-
     # store the main(first) service if no service is defined within $connect.model call
     @mainService = null
 
   # Installs the service manager and adds the newly created instance to Injector as $connect
   # @param callback [Function] function to be called when install is finished
-  install: (@config, callback) =>
+  install: (@config, callback, modelsFolder = "#{global.CurrentWorkingDirectory}/models/") =>
 
     Async.series([
       (asyncCallback) => # database setup
@@ -66,11 +69,14 @@ module.exports = class Services
       (asyncCallback) => # models setup
         loader = new FileLoader()
 
-        loader.find @modelsFolder, (files) => # get the files
+        loader.find modelsFolder, (files) => # get the files
           for moduleName in files
+            # skip modules that won't meet conditions
+            continue if not /(\w+(Model|Entity))\..+/.test(moduleName)
+
             moduleName = moduleName.split('.')[0]
 
-            module = require(@modelsFolder + moduleName)
+            module = require(modelsFolder + moduleName)
 
             @model(moduleName, module.model, module.service)
 
@@ -81,9 +87,12 @@ module.exports = class Services
   
   ###
   Adds model to previously defined service
-  @param name [String] name of model (for injector)
-  @param modelOptions [Object] map of options
-  @param service [String] name of service to bind model to
+
+  @param name [String] Name of model (for injector)
+  @param modelOptions [Object] Map of options
+  @param service [String] Name of service to bind model to
+  @param registerFunctionName [String] Name of function which should be used to register model in the service
+  @return model [Object] Created model
   
   @example Add model to previously created service @see service ( using previously injected $connect)
     $connect.model('MyModel', {
@@ -94,7 +103,7 @@ module.exports = class Services
       }
     }, 'Database')
   ###
-  model: (name, modelOptions, service = null) =>
+  model: (name, modelOptions, service = null, registerFunctionName = "define") =>
 
     if service is null and @mainService isnt null
       service = @mainService
@@ -105,13 +114,14 @@ module.exports = class Services
       console.log "[Bluefire Services] Cannot attach model to non existing service"
       return
 
-    definitionArguments = Injector.resolve(service.define, modelOptions)
+    definitionArguments = Injector.resolve(service[registerFunctionName], modelOptions)
 
-    model = service.define(definitionArguments...) # splat arguments
+    model = service[registerFunctionName](definitionArguments...) # splat arguments
 
     Injector.addService(name, model)
 
-    console.log "New model registered: [#{name}]"
+    #console.log "New model registered: [#{name}]"
+    return model
 
   ###
   Adds service to the service map. This method is synchronous.
