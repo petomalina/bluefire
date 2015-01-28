@@ -6,7 +6,7 @@ else client packets (those which are received).
 This may also load the paths and after that, needed controllers.
 
 @author Gelidus
-@version 0.2
+@version 0.0.3a
 ###
 module.exports = class Router
 
@@ -14,8 +14,8 @@ module.exports = class Router
     @paths = { }
     @controllers = { }
 
-  install: (@configuration, callback) ->
-    if Object.keys(@configuration.data).length > 1 # cont initialize paths if no paths are in data
+  install: (@configuration, callback, controllersFolder = "#{global.CurrentWorkingDirectory}/controllers/") ->
+    if Object.keys(@configuration.data).length > 0 # cont initialize paths if no paths are in data
       console.log 'Initializing paths ...'
       for code, path of @configuration.data
         @route code, path.action, path.controller
@@ -26,7 +26,7 @@ module.exports = class Router
           continue # this controller already exists
 
         # add controller - require and load
-        controller = require "#{global.CurrentWorkingDirectory}/controllers/" + path.controller
+        controller = require(controllersFolder + path.controller)
 
         @controllers[path.controller] = Injector.create controller
         console.log "New controller registered: [#{path.controller}]"

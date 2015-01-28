@@ -1,12 +1,12 @@
-DependencyInjector = require './di/Injector'
-require './BuddyObject' # require here for global definition
+DependencyInjector = require "./di/Injector"
+require "./BuddyObject" # require here for global definition
 
-Async = require 'async'
-Configuration = require './config/Configuration'
+Async = require "async"
+Configuration = require "./config/Configuration"
 
-Services = require './services/Services'
-TaskManager = require './task/TaskManager'
-Connection = require './connection/Connection'
+Services = require "./services/Services"
+TaskManager = require "./task/TaskManager"
+Connection = require "./connection/Connection"
 
 ###
 Base Bluefire module. When install is called, application will try to load
@@ -21,7 +21,7 @@ module.exports = class Application extends Connection
   constructor: (isServer = true) ->
     global.CurrentWorkingDirectory = process.cwd() # set current dit to global for easy pathing 
     
-    #process.on 'uncaughtException', (err) -> # catch all uncaught exceptions here. What to do next?
+    #process.on "uncaughtException", (err) -> # catch all uncaught exceptions here. What to do next?
     #  console.log "Uncaught exception captured : #{err}"
     global.Injector = new DependencyInjector() #establish injector
 
@@ -29,11 +29,11 @@ module.exports = class Application extends Connection
 
     @taskManager = new TaskManager()
     # add task manager to the injector services
-    Injector.addService('$taskmgr', @taskManager)
+    Injector.addService("$taskmgr", @taskManager)
 
     @services = new Services()
 
-    Injector.addService('$service', @services) # add connections to injector
+    Injector.addService("$service", @services) # add connections to injector
 
   ###
   Installs the whole application using structured approach
@@ -46,10 +46,10 @@ module.exports = class Application extends Connection
     connectionConfiguration.load "#{CurrentWorkingDirectory}/configs/connections"
 
     routesConfiguration = new Configuration()
-    routesConfiguration.load "#{CurrentWorkingDirectory}//configs/routes"
+    routesConfiguration.load "#{CurrentWorkingDirectory}/configs/routes"
 
     globalConfiguration = new Configuration() # global configuration
-    globalConfiguration.load "#{CurrentWorkingDirectory}//configs/config"
+    globalConfiguration.load "#{CurrentWorkingDirectory}/configs/config"
 
     if globalConfiguration.get "configuration" is "debug"
       global.debug = (debugText) ->
@@ -86,7 +86,7 @@ module.exports = class Application extends Connection
     # virtual method - override this when needed
 
   _onDisconnect: (session) ->
-    console.log 'Client disconnected'
+    console.log "Client disconnected"
     session.removeAllTasks() # remove all current tasks on the session
     #@onDisconnect(session)
 
