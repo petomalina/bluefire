@@ -21,6 +21,11 @@ Be sure to install [node.js](http://nodejs.org/) first. Then:
 $ sudo npm install -g bluefire
 ```
 
+If you want to use [structured approach to bluefire](https://github.com/Gelidus/bluefire/wiki/Structured-approach) (in directory you want new project):
+```sh
+$ bluefire new yourProjectName
+```
+
 ## Examples
 
 See [examples repository](https://github.com/Gelidus/bluefire-examples).
