@@ -1,12 +1,13 @@
-DependencyInjector = require "./di/Injector"
-require "./BuddyObject" # require here for global definition
+global.CurrentWorkingDirectory = process.cwd() # set current dit to global for easy pathing
 
-Async = require "async"
-Configuration = require "./config/Configuration"
+DependencyInjector = require("./di/Injector")
 
-Services = require "./services/Services"
-TaskManager = require "./task/TaskManager"
-Connection = require "./connection/Connection"
+Async = require("async")
+Configuration = require("./config/Configuration")
+
+Services = require("./services/Services")
+TaskManager = require("./task/TaskManager")
+Connection = require("./connection/Connection")
 
 ###
 Base Bluefire module. When install is called, application will try to load
@@ -19,8 +20,6 @@ module.exports = class Application extends Connection
   Creates just basic applicatin with parser and tcp setup
   ###
   constructor: (isServer = true) ->
-    global.CurrentWorkingDirectory = process.cwd() # set current dit to global for easy pathing 
-    
     #process.on "uncaughtException", (err) -> # catch all uncaught exceptions here. What to do next?
     #  console.log "Uncaught exception captured : #{err}"
     global.Injector = new DependencyInjector() #establish injector
