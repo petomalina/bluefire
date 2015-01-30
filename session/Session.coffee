@@ -18,9 +18,12 @@
 ###
 module.exports = class Session
 
-  constructor: (socket, @parser) ->
-    @socket = socket
+  constructor: () ->
+    @socket = null
     @tasks = { }
+
+  initialize: (socket, @parser) =>
+    @socket = socket
 
     socket.session = @
     socket.getSession = () =>
