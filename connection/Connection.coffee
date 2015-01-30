@@ -17,6 +17,8 @@ Main server class which stores tcp connection, packets and parser
 module.exports = class Connection extends EventEmitter
 
   constructor: (@isServer) ->
+    @sessionStorage = []
+
     # add server as service
     Injector.addService("$connection", @)
 
@@ -126,10 +128,17 @@ module.exports = class Connection extends EventEmitter
   stop: () ->
     @connection.stop()
 
+  removeSession: (session) =>
+    index = @sessionStorage.indexOf(session)
+    @sessionStorage.splice(index, 1) if index isnt -1
+
   _onConnect: (socket) =>
     do (socket) =>
       session = new Session
       session.initialize(socket, @parser)
+
+      # save session into the array
+      @sessionStorage.push(session)
 
       @protocol.initializeSession(session) # initialize session for current protocol
 
@@ -142,6 +151,7 @@ module.exports = class Connection extends EventEmitter
             @onData(session, packetName, parsedData)
 
       socket.on "disconnect", () =>
+        @removeSession(session) # remove current session from storage
         socket.destroy()
         @_onDisconnect session
 
