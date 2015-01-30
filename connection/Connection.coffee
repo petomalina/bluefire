@@ -1,11 +1,15 @@
-Session = require '../session/ClientSession'
-FileLoader = require '../fileLoader/FileLoader'
-Parser = require '../parser/Parser'
-Router = require '../routing/Router'
-Configuration = require '../config/Configuration'
-Protocol = require './Protocol'
+try
+  Session = require("#{global.CurrentWorkingDirectory}/sessions/Session")
+catch exception
+  Session = require("../session/Session")
 
-EventEmitter = require('events').EventEmitter
+FileLoader = require("../fileLoader/FileLoader")
+Parser = require("../parser/Parser")
+Router = require("../routing/Router")
+Configuration = require("../config/Configuration")
+Protocol = require("./Protocol")
+
+EventEmitter = require("events").EventEmitter
 
 ###
 Main server class which stores tcp connection, packets and parser
@@ -96,10 +100,10 @@ module.exports = class Connection extends EventEmitter
       @configuration = new Configuration
 
     # override the configuration port if other port is specified (non structured approach)
-    if port isnt null then @configuration.add('port', port)
-    if address isnt null then @configuration.add('address', address)
+    if port isnt null then @configuration.add("port", port)
+    if address isnt null then @configuration.add("address", address)
 
-    @connection.on 'connect', @_onConnect
+    @connection.on "connect", @_onConnect
 
     runOptions = Injector.resolve(@connection.run, @configuration.data)
 
@@ -107,17 +111,17 @@ module.exports = class Connection extends EventEmitter
 
     #console.log "Running console commander \n"
 
-    ###process.stdin.setEncoding('utf8')
+    ###process.stdin.setEncoding("utf8")
 
     # look for readable
-    process.stdin.on 'readable', () ->
+    process.stdin.on "readable", () ->
       chunk = process.stdin.read()
       if chunk isnt null
-        process.stdout.write('data: ' + chunk)
+        process.stdout.write("data: " + chunk)
 
     # end commander at the end
-    process.stdin.on 'end', () ->
-      process.stdout.write('Console commander exited')###
+    process.stdin.on "end", () ->
+      process.stdout.write("Console commander exited")###
 
   stop: () ->
     @connection.stop()
@@ -127,19 +131,19 @@ module.exports = class Connection extends EventEmitter
       session = new Session(socket, @parser)
       @protocol.initializeSession(session) # initialize session for current protocol
 
-      @emit('connect', session) # emit new connection
+      @emit("connect", session) # emit new connection
 
-      socket.on 'data', (buffer) =>
+      socket.on "data", (buffer) =>
         @protocol.receive buffer, session, (data) =>
           @parser.parse data, (packetName, parsedData) =>
             @router.call packetName, session, parsedData
             @onData(session, packetName, parsedData)
 
-      socket.on 'disconnect', () =>
+      socket.on "disconnect", () =>
         socket.destroy()
         @_onDisconnect session
 
-      socket.on 'error', () =>
+      socket.on "error", () =>
         console.log "Error on socket, disconnecting ..."
         socket.destroy()
         @_onDisconnect session
