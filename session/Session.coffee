@@ -1,10 +1,3 @@
-
-try
-  Session = require "#{CurrentWorkingDirectory}/sessions/Session"
-catch exception
-  Session = class
-
-
 ###
 
 @method #beforeSerialize
@@ -23,7 +16,7 @@ catch exception
   @param [String] name of the packet
   @param [Byte Array] serialized data 
 ###
-module.exports = class ClientSession extends Session
+module.exports = class Session
 
   constructor: (socket, @parser) ->
     @socket = socket

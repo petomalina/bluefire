@@ -1,2 +1,2 @@
 
-module.exports = require './ClientSession'
+module.exports = require('./Session')
