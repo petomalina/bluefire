@@ -7,32 +7,32 @@ testingPort = 9999
 describe "TCPConnector", () ->
 
 	describe "Basic tests", () ->
+		connector = null
 
 		it "should construct the tcpconnector correctly", () ->
 			connector = new TCPConnector
 			(connector?).should.be.true
 
 		it "should try to run the connector", () ->
-			connector = new TCPConnector
-
 			connector.run(testingPort, "127.0.0.1")
 			connector.running.should.be.false
 
+		it "should stop running connector", () ->
+			connector.stop()
+
 		it "should try to stop not running connector", () ->
-			connector = new TCPConnector
 			connector.stop()
 
 describe "TCPAcceptor", () ->
 
 	describe "Basic tests", () ->
+		acceptor = null
 
 		it "should construct the acceptor correctly", () ->
 			acceptor = new TCPAcceptor
 			(acceptor?).should.be.true
 
 		it "should try to run and stop the acceptor", (done) ->
-			acceptor = new TCPAcceptor
-
 			acceptor.on "listening", () ->
 				acceptor.running.should.be.true
 				acceptor.stop()
@@ -40,9 +40,10 @@ describe "TCPAcceptor", () ->
 
 			acceptor.run(testingPort)
 
-		it "should try to stop non running acceptor", () ->
-			acceptor = new TCPAcceptor
+		it "should stop running acceptor", () ->
+			acceptor.stop()
 
+		it "should try to stop non running acceptor", () ->
 			acceptor.stop()
 
 describe "TCPAcceptor and TCPConnector cooperation", () ->

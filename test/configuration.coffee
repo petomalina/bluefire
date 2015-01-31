@@ -1,43 +1,47 @@
-Configuration = require '../config/Configuration'
-require 'should'
+Configuration = require "../config/Configuration"
+require "should"
 
-describe 'Configuration', () ->
-	conf = new Configuration
+describe "Configuration", () ->
+	conf = null
 
-	describe '#add()', () ->
-		it 'should add key-value pair into configuration', () ->
-			conf.add 'key', 'value'
-			conf.add 'key2', null
-			conf.add 'testkey', new Object
+	describe "#constructor()", () ->
+		it "should construct the configuration", () ->
+			conf = new Configuration
+
+	describe "#add()", () ->
+		it "should add key-value pair into configuration", () ->
+			conf.add "key", "value"
+			conf.add "key2", null
+			conf.add "testkey", new Object
 
 			Object.keys(conf.data).length.should.be.exactly(3)
 
-	describe '#get()', () ->
-		it 'should get key-value pair from configuration', () ->
-			'value'.should.eql(conf.get('key'))
-			(conf.get('testkey') is null).should.not.be.true
+	describe "#get()", () ->
+		it "should get key-value pair from configuration", () ->
+			"value".should.eql(conf.get("key"))
+			(conf.get("testkey") is null).should.not.be.true
 
-		it 'should try to retrieve the null value from key', () ->
-			(conf.get('key2') is null).should.be.true
+		it "should try to retrieve the null value from key", () ->
+			(conf.get("key2") is null).should.be.true
 
-	describe '#length', () ->
-		it 'should return length of current configuration', () ->
+	describe "#length", () ->
+		it "should return length of current configuration", () ->
 			Object.keys(conf.data).length.should.be.eql(conf.length())
 
-	describe '#remove()', () ->
-		it 'should remove key-value pair from configuration', () ->
-			conf.remove 'key2'
+	describe "#remove()", () ->
+		it "should remove key-value pair from configuration", () ->
+			conf.remove "key2"
 			conf.length().should.be.eql(2)
-			conf.remove 'key'
-			(conf.get('key') is null).should.not.be.true
+			conf.remove "key"
+			(conf.get("key") is null).should.not.be.true
 
-		it 'should try to remove non-existing key', () ->
-			conf.remove('key2') # no error should be here
+		it "should try to remove non-existing key", () ->
+			conf.remove("key2") # no error should be here
 
-	describe '#empty()', () ->
-		it 'should return false if configuration is empty and if not, empty it', () ->
+	describe "#empty()", () ->
+		it "should return false if configuration is empty and if not, empty it", () ->
 			conf.empty().should.be.false
-			conf.remove 'testkey'
+			conf.remove "testkey"
 
-		it 'should check the configuration if it\'s empty (is empty)', () ->
+		it "should check the configuration if it\"s empty (is empty)", () ->
 			conf.empty().should.be.true
