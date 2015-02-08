@@ -48,23 +48,12 @@ module.exports = class Services
       (asyncCallback) => # database setup
         services = @config.data
 
-        for serviceName, options of services
-          # service class
-          ServiceModule = require(options.module)
-          # get service options
-          serviceArguments = options.arguments
-          # resolve service constructor
-          serviceConstructArguments = Injector.resolve(ServiceModule, serviceArguments)
-          # create service
-          service = new ServiceModule(serviceConstructArguments...)
-
-          # add service to injector
-          Injector.addService(serviceName, service)
-
-          if @mainService is null
-            @mainService = service
-
-        asyncCallback(null, 1)
+        Async.eachSeries Object.keys(services), (serviceName, iterator) =>
+          options = services[serviceName]
+          @service(serviceName, options.module, options.arguments,
+            options.beforeCreate, options.afterCreate, iterator)
+        , (err) ->
+          asyncCallback(null, 1)
 
       (asyncCallback) => # models setup
         loader = new FileLoader()
@@ -144,7 +133,7 @@ module.exports = class Services
       }
     })
   ###
-  service: (name, module, options = { }, beforeCreate, afterCreate) ->
+  service: (name, module, options = { }, beforeCreate, afterCreate, callback) ->
     Module = if typeof module is "string" then require(module) else module
 
     moduleArgs = Injector.resolve(Module, options)
@@ -155,6 +144,13 @@ module.exports = class Services
 
     Injector.addService(name, service) # register service to injector
 
-    afterCreate(service) if afterCreate? # callback created service
+    if @mainService is null
+      @mainService = service
+
+    if afterCreate? # callback created service
+      afterCreate service, () ->
+        callback(service) # fully constructed service
+    else
+      callback(service)
 
     return service
