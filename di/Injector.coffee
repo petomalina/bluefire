@@ -62,15 +62,15 @@ module.exports = class Injector
   # @param Constructor[function] function to inject
   # @param instance[Object] object to apply injected function to
   inject: (Constructor, instance, dependencyList = null) ->
-    deps = @resolve Constructor, dependencyList
+    dependencies = @resolve Constructor, dependencyList
 
-    Constructor.apply instance, deps
+    Constructor.apply instance, dependencies
 
-  # @param func[function] funcion to resolve parameters on
+  # @param func[function] function to resolve parameters on
   # @param dependencyList[Object] previously defined dependency list
   #         if no dependency list is defined, Injector will be used instead
   # @return dependencies[Array] ordered list of dependencies
-  resolve: (func, dependencyList = null) ->
+  resolve: (func, dependencyList = null) =>
     keys = @getArguments func
     dependencies = []
 
