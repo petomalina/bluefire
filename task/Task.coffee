@@ -7,7 +7,10 @@
 ###
 module.exports = class Task
 
-	constructor: (@action, @options = { }) ->
+	constructor: (action, options = { }) ->
+		this.action = action
+		this.options = options
+
 		if not @options.repeat?
 			@options.repeat = false
 		else

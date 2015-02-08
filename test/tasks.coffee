@@ -20,10 +20,11 @@ describe "TaskManager", () ->
 
   describe "#task()", () ->
     it "should create new task with no options", () ->
-      manager.task "MyTask", { }, () ->
+      manager.task "MyTask", { }, (context) ->
 
     it "should add task and call it", (done) ->
-      manager.task "NewTask", { }, () ->
+      manager.task "NewTask", { }, (context) ->
+        (context?).should.be.false
         done()
 
       manager.perform("NewTask", null)
