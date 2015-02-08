@@ -50,8 +50,9 @@ module.exports = class Services
 
         Async.eachSeries Object.keys(services), (serviceName, iterator) =>
           options = services[serviceName]
-          @service(serviceName, options.module, options.arguments,
-            options.beforeCreate, options.afterCreate, iterator)
+          @service serviceName, options.module, options.arguments,
+            options.beforeCreate, (service) -> # wait for afterCreate here
+              if options.afterCreate? then options.afterCreate(service, iterator) else iterator()
         , (err) ->
           asyncCallback(null, 1)
 
@@ -133,7 +134,7 @@ module.exports = class Services
       }
     })
   ###
-  service: (name, module, options = { }, beforeCreate, afterCreate, callback) ->
+  service: (name, module, options = { }, beforeCreate, afterCreate) ->
     Module = if typeof module is "string" then require(module) else module
 
     moduleArgs = Injector.resolve(Module, options)
@@ -148,9 +149,6 @@ module.exports = class Services
       @mainService = service
 
     if afterCreate? # callback created service
-      afterCreate service, () ->
-        callback(service) # fully constructed service
-    else
-      callback(service)
+      afterCreate service
 
     return service
