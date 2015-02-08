@@ -2,10 +2,12 @@ Packet = require('./Packet')
 
 module.exports = class Parser
 
-  constructor: (@isServer, @head) ->
+  constructor: (isServer, head) ->
+    this.isServer = isServer
+
     @conditionField = "opcode"
 
-    @head = new Packet("Head") # register empty head
+    @head = if head? then head else new Packet("Head") # register empty head
 
     @serverPackets = { }
     @clientPackets = { }
