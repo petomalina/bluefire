@@ -4,7 +4,7 @@
   "description": "Lightweight tcp framework",
   "main": "index.coffee",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --compilers coffee:coffee-script/register"
   },
   "bin": {
     "bluefire": "./bin/bluefire.js"
@@ -26,10 +26,12 @@
   },
   "dependencies": {
     "async": "~0.9.0",
-    "sequelize": "~2.0.0-rc1",
-    "ncp": "~1.0.1"
+    "coffee-script": "^1.9.0",
+    "ncp": "~1.0.1",
+    "sequelize": "~2.0.0-rc1"
   },
   "devDependencies": {
+    "mocha": "^2.1.0",
     "should": "^4.4.4",
     "should-type": "0.0.4"
   }
