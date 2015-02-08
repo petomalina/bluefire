@@ -3,6 +3,10 @@ Session = require("../session")
 
 describe "Session", () ->
 
+  describe "#constructor()", () ->
+    session = new Session
+    (session?).should.be.true
+
   describe "Session Storage", () ->
     store = null
 
