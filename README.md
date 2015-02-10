@@ -14,7 +14,7 @@ Lightweight TCP framework based on [node.js](http://nodejs.org/) and written in 
 
 Feel free to vote on [Bluefire Trello](https://trello.com/b/tltmSctv/bluefire) for features you want to be in the framework first!
 
-## Installation [![npm version](https://badge.fury.io/js/bluefire.svg)](http://badge.fury.io/js/bluefire)
+## Installation [![npm version](https://badge.fury.io/js/bluefire.svg)](http://badge.fury.io/js/bluefire)[![Build Status](https://travis-ci.org/Gelidus/bluefire.svg?branch=master)](https://travis-ci.org/Gelidus/bluefire)
 
 Be sure to install [node.js](http://nodejs.org/) first. Then:
 ```sh
