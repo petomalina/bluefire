@@ -2,10 +2,9 @@ Packet = require('./Packet')
 
 module.exports = class Parser
 
-  constructor: (isServer, head) ->
-    this.isServer = isServer
-
-    @conditionField = "opcode"
+  constructor: (isServer, head, conditionField = "opcode") ->
+    @isServer = isServer
+    @conditionField = conditionField
 
     @head = if head? then head else new Packet("Head") # register empty head
 
@@ -63,7 +62,7 @@ module.exports = class Parser
     return @registerPacket(packet, isServerPacket, condition)
 
   ###
-  Finds condition field value in the packet structure 
+  Finds condition field value in the packet structure
 
   @param structure [Array] an array of structured for the packet
   @return [String|Integer|Null] value of condition field or null if not found
@@ -87,7 +86,7 @@ module.exports = class Parser
 
   registerCondition: (packetName, condition = null) ->
     if condition? and packetName?
-      @packetConditions[condition] = packetName       
+      @packetConditions[condition] = packetName
 
   ###
   Parses the given data buffer into the structure which
@@ -110,7 +109,8 @@ module.exports = class Parser
       [parsedData[name], index] = read(buffer, index)
 
     # parse packets that are oposite
-    packet = @getPacket(@packetConditions[parsedData[@conditionField]], !@isServer)
+    name = if packetName? then packetName else @packetConditions[parsedData[@conditionField]]
+    packet = @getPacket(name, !@isServer)
 
     if not packet?
       callback(null, null)

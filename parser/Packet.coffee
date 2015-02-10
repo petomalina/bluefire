@@ -33,7 +33,7 @@ module.exports = class Packet
 
     return @
 
-  isAlreadyDefined: (name) =>
+  isDefined: (name) =>
     if @head?
       for parser in @head.packetParseData
         return true if parser.name is name
@@ -44,7 +44,7 @@ module.exports = class Packet
     return false
 
   addPredefinedValue: (field, value) =>
-    if @isAlreadyDefined(field)
+    if @isDefined(field)
       @predefinedValues[field] = value # already defined (wants default value assign)  
       return true
     else
