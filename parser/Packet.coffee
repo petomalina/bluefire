@@ -51,227 +51,238 @@ module.exports = class Packet
       return false  
 
   addUInt8: (name) ->
-    @packetParseData.push {
-      name: name
+    do (name) =>
+      @packetParseData.push {
+        name: name
 
-      read: (buffer, index) ->
-        return [ buffer.readUInt8(index), index + 1 ]
+        read: (buffer, index) ->
+          return [ buffer.readUInt8(index), index + 1 ]
 
-      write: (data) ->
-        addBuffer = new Buffer(1)
-        addBuffer.writeUInt8(data, 0)
+        write: (data) ->
+          addBuffer = new Buffer(1)
+          addBuffer.writeUInt8(data, 0)
 
-        return addBuffer
-    }
+          return addBuffer
+      }
 
     return @
 
   addInt8: (name) ->
-    @packetParseData.push {
-      name: name
+    do (name) =>
+      @packetParseData.push {
+        name: name
 
-      read: (buffer, index) ->
-        return [ buffer.readInt8(index), index + 1 ]
+        read: (buffer, index) ->
+          return [ buffer.readInt8(index), index + 1 ]
 
-      write: (data) ->
-        addBuffer = new Buffer(1)
-        addBuffer.writeInt8(data, index)
+        write: (data) ->
+          addBuffer = new Buffer(1)
+          addBuffer.writeInt8(data, index)
 
-        return addBuffer
-    }
+          return addBuffer
+      }
 
     return @
 
   addUInt16LE: (name) ->
-    @packetParseData.push {
-      name: name
+    do (name) =>
+      @packetParseData.push {
+        name: name
 
-      read: (buffer, index) ->
-        return [ buffer.readUInt16LE(index), index + 2 ]
+        read: (buffer, index) ->
+          return [ buffer.readUInt16LE(index), index + 2 ]
 
-      write: (data) ->
-        addBuffer = new Buffer(2)
-        addBuffer.writeUInt16LE(data, 0)
+        write: (data) ->
+          addBuffer = new Buffer(2)
+          addBuffer.writeUInt16LE(data, 0)
 
-        return addBuffer
-    }
-
-    return @
-
-  addUInt32LE: (name) -> 
-    @packetParseData.push {
-      name: name
-
-      read: (buffer, index) ->
-        return [ buffer.readUInt32LE(index), index + 4 ]
-
-      write: (data) ->
-        addBuffer = new Buffer(4)
-        addBuffer.writeUInt32LE(data, 0)
-
-        return addBuffer
-    }
+          return addBuffer
+      }
 
     return @
 
-  # change return buffer on methods above : TODO
+  addUInt32LE: (name) ->
+    do (name) =>
+      @packetParseData.push {
+        name: name
+
+        read: (buffer, index) ->
+          return [ buffer.readUInt32LE(index), index + 4 ]
+
+        write: (data) ->
+          addBuffer = new Buffer(4)
+          addBuffer.writeUInt32LE(data, 0)
+
+          return addBuffer
+      }
+
+    return @
+
   addInt16LE: (name) ->
-    @packetParseData.push {
-      name: name
+    do (name) =>
+      @packetParseData.push {
+        name: name
 
-      read: (buffer, index) ->
-        return [ buffer.readInt16LE(index), index + 2 ]
+        read: (buffer, index) ->
+          return [ buffer.readInt16LE(index), index + 2 ]
 
-      write: (data) ->
-        addBuffer = new Buffer(2)
-        addBuffer.writeInt16LE(data, buffer.length)
+        write: (data) ->
+          addBuffer = new Buffer(2)
+          addBuffer.writeInt16LE(data, buffer.length)
 
-        return addBuffer
-    }
+          return addBuffer
+      }
 
     return @
 
   addInt32LE: (name) ->
-    @packetParseData.push {
-      name: name
+    do (name) =>
+      @packetParseData.push {
+        name: name
 
-      read: (buffer, index) ->
-        return [ buffer.readInt32LE(index), index + 4 ]
+        read: (buffer, index) ->
+          return [ buffer.readInt32LE(index), index + 4 ]
 
-      write: (data) ->
-        addBuffer = new Buffer(4)
-        addBuffer.writeInt32LE(data, 0)
+        write: (data) ->
+          addBuffer = new Buffer(4)
+          addBuffer.writeInt32LE(data, 0)
 
-        return addBuffer
-    }
+          return addBuffer
+      }
 
     return @
 
   addDoubleLE: (name) ->
-    @packetParseData.push {
-      name: name
+    do (name) =>
+      @packetParseData.push {
+        name: name
 
-      read: (buffer, index) ->
-        return [ buffer.readDoubleLE(index), index + 8 ]
+        read: (buffer, index) ->
+          return [ buffer.readDoubleLE(index), index + 8 ]
 
-      write: (data) ->
-        addBuffer = new Buffer(8)
-        addBuffer.writeDoubleLE(data, 0)
+        write: (data) ->
+          addBuffer = new Buffer(8)
+          addBuffer.writeDoubleLE(data, 0)
 
-        return addBuffer
-    }
+          return addBuffer
+      }
 
     return @
 
   addFloatLE: (name) ->
-    @packetParseData.push {
-      name: name
+    do (name) =>
+      @packetParseData.push {
+        name: name
 
-      read: (buffer, index) ->
-        return [ buffer.readFloatLE(index), index + 4 ]
+        read: (buffer, index) ->
+          return [ buffer.readFloatLE(index), index + 4 ]
 
-      write: (data) ->
-        addBuffer = new Buffer(4)
-        addBuffer.writeFloatLE(data, 0)
+        write: (data) ->
+          addBuffer = new Buffer(4)
+          addBuffer.writeFloatLE(data, 0)
 
-        return addBuffer
-    }
+          return addBuffer
+      }
 
     return @
 
   # change return type on above method (write)
   addStringLE: (name) ->
-    @packetParseData.push {
-      name: name
+    do (name) =>
+      @packetParseData.push {
+        name: name
 
-      read: (buffer, index) ->
-        data = ""
-        i = 0
+        read: (buffer, index) ->
+          data = ""
+          i = 0
 
-        loop
-          char = buffer.readUInt8(index+i)
-          break if char is 0
+          loop
+            char = buffer.readUInt8(index+i)
+            break if char is 0
 
-          data += String.fromCharCode(char)
-          i++
+            data += String.fromCharCode(char)
+            i++
 
-        return [ data, index + i + 1];
+          return [ data, index + i + 1];
 
-      write: (data) ->
-        buffer = new Buffer(data.length + 1)
-        #for i in [0..data.length-1]
-        #  buffer.writeUInt8(data.charCodeAt(i), i) # copy each character to the uint8 array
-        buffer.write(data, "ascii")
+        write: (data) ->
+          buffer = new Buffer(data.length + 1)
+          #for i in [0..data.length-1]
+          #  buffer.writeUInt8(data.charCodeAt(i), i) # copy each character to the uint8 array
+          buffer.write(data, "ascii")
 
-        buffer.writeUInt8(0, buffer.length-1) # terminate by zero
+          buffer.writeUInt8(0, buffer.length-1) # terminate by zero
 
-        return buffer
-    }
+          return buffer
+      }
 
     return @
 
   addUInt8Array: (name, count) ->
-    @packetParseData.push {
-      name: name
+    do (name, count) =>
+      @packetParseData.push {
+        name: name
 
-      read: (buffer, index) ->
-        data = []
+        read: (buffer, index) ->
+          data = []
 
-        for i in [0..count-1]
-          data.push(buffer.readUInt8(index + i))
+          for i in [0..count-1]
+            data.push(buffer.readUInt8(index + i))
 
-        return [ data, index + count ]
+          return [ data, index + count ]
 
-      write: (data) ->
-        addBuffer = new Buffer(count)
-        for i in [0..count-1]
-          addBuffer.writeUInt8(data[i], i)
+        write: (data) ->
+          addBuffer = new Buffer(count)
+          for i in [0..count-1]
+            addBuffer.writeUInt8(data[i], i)
 
-        return addBuffer
-    }
+          return addBuffer
+      }
 
     return @
 
   addUInt16LEArray: (name, count) ->
-    @packetParseData.push {
-      name: name
+    do (name, count) =>
+      @packetParseData.push {
+        name: name
 
-      read: (buffer, index) ->
-        data = []
+        read: (buffer, index) ->
+          data = []
 
-        for i in [0..count-1]
-          data.push(buffer.readUInt16LE(index + i))
+          for i in [0..count-1]
+            data.push(buffer.readUInt16LE(index + i))
 
-        return [ data, index + count ]
+          return [ data, index + count ]
 
-      write: (data) ->
-        addBuffer = new Buffer(count)
-        for i in [0..count-1]
-          addBuffer.writeUInt16LE(data[i], i)
+        write: (data) ->
+          addBuffer = new Buffer(count)
+          for i in [0..count-1]
+            addBuffer.writeUInt16LE(data[i], i)
 
-        return addBuffer
-    }
+          return addBuffer
+      }
 
     return @
 
   addUInt32LEArray: (name, count) ->
-    @packetParseData.push {
-      name: name
+    do (name, count) =>
+      @packetParseData.push {
+        name: name
 
-      read: (buffer, index) ->
-        data = []
+        read: (buffer, index) ->
+          data = []
 
-        for i in [0..count-1]
-          data.push(buffer.readUInt32LE(index + i))
+          for i in [0..count-1]
+            data.push(buffer.readUInt32LE(index + i))
 
-        return [ data, index + count ]
+          return [ data, index + count ]
 
-      write: (data) ->
-        addBuffer = new Buffer(count)
-        for i in [0..count-1]
-          addBuffer.writeUInt32LE(data[i], i)
+        write: (data) ->
+          addBuffer = new Buffer(count)
+          for i in [0..count-1]
+            addBuffer.writeUInt32LE(data[i], i)
 
-        return addBuffer
-    }
+          return addBuffer
+      }
 
     return @
