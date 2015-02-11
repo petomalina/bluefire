@@ -27,6 +27,8 @@ module.exports = class Protocol
     lengthBuffer = new Buffer(4) # first 4 bytes are always length
     lengthBuffer.writeUInt32LE(buffer.length, 0)
 
+    if typeof buffer is "string" then buffer = new Buffer(buffer)
+
     session.write(Buffer.concat([lengthBuffer, buffer]))
     session.protocol.traffic++
 
