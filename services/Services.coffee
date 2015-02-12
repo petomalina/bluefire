@@ -44,37 +44,65 @@ module.exports = class Services
   # @param callback [Function] function to be called when install is finished
   install: (@config, callback, modelsFolder = "#{global.CurrentWorkingDirectory}/models/") =>
 
+    services = @config.data
+
     Async.series([
-      (asyncCallback) => # database setup
-        services = @config.data
+        (asyncCallback) =>
+          if services.beforeAll?
+            services.beforeAll (err) ->
+              asyncCallback(err, 1)
+          else
+            asyncCallback(null, 1)
 
-        Async.eachSeries Object.keys(services), (serviceName, iterator) =>
-          options = services[serviceName]
-          @service serviceName, options.module, options.arguments,
-            options.beforeCreate, (service) -> # wait for afterCreate here
+        (asyncCallback) => # database setup
+          Async.eachSeries Object.keys(services), (serviceName, iterator) =>
+            if serviceName is "beforeAll" or serviceName is "afterAll"
+              iterator()
+              return
+
+            options = services[serviceName]
+            @service serviceName, options.module, options.arguments,
+              options.beforeCreate, (service) -> # wait for afterCreate here
               if options.afterCreate? then options.afterCreate(service, iterator) else iterator()
-        , (err) ->
-          asyncCallback(null, 1)
+          , (err) ->
+            asyncCallback(null, 2)
 
-      (asyncCallback) => # models setup
-        loader = new FileLoader()
+        (asyncCallback) => # models setup
+          loader = new FileLoader()
 
-        loader.find modelsFolder, (files) => # get the files
-          for moduleName in files
-            # skip modules that won't meet conditions
-            continue if not /(\w+(Model|Entity))\..+/.test(moduleName)
+          loader.find modelsFolder, (files) => # get the files
+            for moduleName in files
+              # skip modules that won't meet conditions
+              continue if not /(\w+(Model|Entity))\..+/.test(moduleName)
 
-            moduleName = moduleName.split('.')[0]
+              moduleName = moduleName.split('.')[0]
 
-            module = require(modelsFolder + moduleName)
+              module = require(modelsFolder + moduleName)
 
-            @model(moduleName, module.model, module.service)
+              @model(moduleName, module.model, module.service)
 
-          asyncCallback(null, 2)
-    ], () ->
+              console.log("New model registered: #{moduleName}")
+
+            asyncCallback(null, 3)
+
+        (asyncCallback) =>
+          if services.afterAll?
+            args = Injector.resolve(services.afterAll)
+            if args[args.length-1]?
+              services.afterAll(args...)
+              asyncCallback(null, 4)
+            else
+              args.pop()
+              args.push (err) ->
+                asyncCallback(err, 4)
+
+              services.afterAll(args...)
+          else
+            asyncCallback(null, 4)
+      ], () ->
       callback(null, 2)
     )
-  
+
   ###
   Adds model to previously defined service
 
@@ -93,16 +121,26 @@ module.exports = class Services
       }
     }, 'Database')
   ###
-  model: (name, modelOptions, service = null, registerFunctionName = "define") =>
+  model: (name, modelOptions, serviceName = null, registerFunctionName = "define") =>
 
-    if service is null and @mainService isnt null
+    if serviceName is null and @mainService isnt null
       service = @mainService
     else if service isnt null
-      service = Injector.getService(service) # get service by name from injector
-    
-    if service is null # could not be found
+      service = Injector.getService(serviceName) # get service by name from injector
+
+    if not service? # could not be found
       console.log "[Bluefire Services] Cannot attach model to non existing service"
       return
+
+    if @config?
+      # calculation of true attributes from service model
+      # this is now only for sequelize
+      trueAttributes = { }
+      serviceModule = require(@config.data[serviceName].module)
+      for attribute, type of modelOptions.attributes
+        trueAttributes[attribute] = serviceModule[type]
+
+    modelOptions.attributes = trueAttributes
 
     definitionArguments = Injector.resolve(service[registerFunctionName], modelOptions)
 
