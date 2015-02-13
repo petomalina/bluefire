@@ -1,6 +1,6 @@
-require "should"
-Parser = require "../parser/Parser"
-Packet = require "../parser/Packet"
+require ("should")
+Parser = require("../parser/Parser")
+Packet = require("../parser/Packet")
 
 describe "Packet", () ->
 
@@ -109,7 +109,6 @@ describe "Packet", () ->
         done()
 
   describe "Advanced #add() method packet tests", () ->
-
     it "should add structure to the packet with #add() method", () ->
       parser = new Parser(true)
       parser.initialize()
