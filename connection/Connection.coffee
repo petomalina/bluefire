@@ -26,7 +26,8 @@ module.exports = class Connection extends EventEmitter
     Injector.addService("$protocol", @protocol)
 
     # @property [Object] Parser instance
-    @parser = Injector.create(Parser, { isServer : @isServer }) # require default parsr
+    @parser = new Parser(@isServer) # require default parsr
+    @parser.initialize() # initialize with defaults
 
     @router = new Router()
     Injector.addService("$router", @router)
@@ -87,8 +88,11 @@ module.exports = class Connection extends EventEmitter
   @param moduleName [String] name of module to be set as a parser
   ###
   setParser: (moduleName, options = {}) =>
-    parserModule = require(moduleName)
-    @parser = Injector.create(parserModule, options)
+    ParserModule = require(moduleName)
+    @parser = new ParserModule(@isServer)
+
+    args = Injector.resolve(@parser.initialize, options)
+    @parser.initialize(args...)
 
   ###
   Starts to listen on given port (by argument paseed or configuration)

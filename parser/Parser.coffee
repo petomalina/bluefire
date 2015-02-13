@@ -2,15 +2,15 @@ Packet = require('./Packet')
 
 module.exports = class Parser
 
-  constructor: (isServer, head, conditionField = "opcode") ->
-    @isServer = isServer
-    @conditionField = conditionField
-
-    @head = if head? then head else new Packet("Head") # register empty head
+  constructor: (@isServer) ->
+    @head = new Packet("Head") # register empty head
 
     @serverPackets = { }
     @clientPackets = { }
     @packetConditions = { } # condition - name map
+
+  initialize: (conditionField = "opcode") =>
+    @conditionField = conditionField
 
   ###
   @return [Packet] packet representing head for all packets
@@ -146,7 +146,6 @@ module.exports = class Parser
       write = parser['write']
 
       data[name] = packet.predefinedValues[name] if not data[name]? and packet.predefinedValues[name]?
-
       bufferArray.push(write(data[name]))
 
     for parser in packet.packetParseData

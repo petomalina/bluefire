@@ -39,6 +39,7 @@ describe "Packet", () ->
   
   describe "Parser construction", () ->
     parser = new Parser(true) # is server parser
+    parser.initialize()
 
     it "should correctly construct parser", () ->
       parser.getHead().packetParseData.should.be.eql([])
@@ -65,6 +66,7 @@ describe "Packet", () ->
 
   describe "Advanced tests of packet and parser", () ->
     parser = new Parser(true) # is server parser
+    parser.initialize()
 
     it "should set the parser head", () ->
       parser.getHead().packetParseData.should.be.eql([])
@@ -110,6 +112,8 @@ describe "Packet", () ->
 
     it "should add structure to the packet with #add() method", () ->
       parser = new Parser(true)
+      parser.initialize()
+
       parser.setHead(packetHead)
       firstPacket = new Packet("firstPacket", packetHead)
 
@@ -131,6 +135,8 @@ describe "Packet", () ->
 
     it "should correctly parse and serialize advanced packet", (done) ->
       parser = new Parser(true)
+      parser.initialize()
+
       parser.setHead(packetHead)
 
       firstPacket = new Packet("firstPacket", packetHead)
