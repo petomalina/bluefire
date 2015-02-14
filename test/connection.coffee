@@ -1,6 +1,8 @@
 require "should"
-TCPConnector = require "../connection/TCPConnector"
-TCPAcceptor = require "../connection/TCPAcceptor"
+TCPConnector = require("../connection/TCPConnector")
+TCPAcceptor = require("../connection/TCPAcceptor")
+Connection = require("../connection/Connection")
+Configuration = require("../config/Configuration")
 
 testingPort = 9999
 
@@ -63,3 +65,31 @@ describe "TCPAcceptor and TCPConnector cooperation", () ->
 				connector.run(testingPort, '127.0.0.1')
 
 			acceptor.run(testingPort)
+
+describe "Connection", () ->
+
+	describe "#constructor", () ->
+		it "should correctly construct connection instance", () ->
+			connection = new Connection(true)
+			(connection?).should.be.true
+			connection.isServer.should.be.true
+			connection.sessionStorage.should.be.eql([])
+
+			(connection.parser.conditionField?).should.be.true
+			connection.parser.conditionField.should.be.eql("opcode")
+
+	describe "#install()", () ->
+		connection = null
+
+		it "should construct server connection instance", () ->
+			connection = new Connection(true)
+			(connection?).should.be.true
+
+		it "should correctly install packetbuddy from config", (done) ->
+			config = new Configuration
+			config.load("./configs/config.coffee")
+
+			routerConfig = new Configuration
+
+			connection.install config, routerConfig, (err, result) ->
+				done()
