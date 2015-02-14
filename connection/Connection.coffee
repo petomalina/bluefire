@@ -40,8 +40,10 @@ module.exports = class Connection extends EventEmitter
   install: (@configuration, routerConfiguration, callback) =>
     # create parser and add packets
     parserModuleName = @configuration.get("parser")
-    if parserModuleName? and parserModuleName isnt "default"
+    if parserModuleName? and parserModuleName isnt "packetbuddy"
       @setParser(parserModuleName, @configuration.get(parserModuleName))
+    else if parserModuleName is "packetbuddy"
+      @setParser(@parser, @configuration.get(parserModuleName))
 
     # if no parser is defined in the configuration, defaukt will be used instead
     try
@@ -85,11 +87,14 @@ module.exports = class Connection extends EventEmitter
   ###
   Replaces the current packet parser with new module
 
-  @param moduleName [String] name of module to be set as a parser
+  @param module [String|Parser] name of module to be set as a parser
   ###
-  setParser: (moduleName, options = {}) =>
-    ParserModule = require(moduleName)
-    @parser = new ParserModule(@isServer)
+  setParser: (module, options = {}) =>
+    if typeof module is "string"
+      ParserModule = require(module)
+      @parser = new ParserModule(@isServer)
+    else
+      @parser = module
 
     args = Injector.resolve(@parser.initialize, options)
     @parser.initialize(args...)
