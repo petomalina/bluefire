@@ -6,10 +6,14 @@ module.exports = class Configuration
 
   constructor: () ->
     @data = { }
+    @moduleName = ""
 
-  load: (module) =>
+  load: (moduleName = @moduleName) =>
     try
-      file = require module
+      if not moduleName? or moduleName is ""
+        throw new Error("Module to load not set!")
+
+      file = require(moduleName)
 
       for key, value of file
         @data[key] = value
