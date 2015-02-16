@@ -21,6 +21,7 @@ describe "TaskManager", () ->
   describe "#task()", () ->
     it "should create new task with no options", () ->
       manager.task "MyTask", { }, (context) ->
+        context.method() if context.method?
 
     it "should add task and call it", (done) ->
       manager.task "NewTask", { }, (context) ->
@@ -54,4 +55,7 @@ describe "TaskManager", () ->
       (manager.get("SecondJob")?).should.be.true
 
     it "should try to perform task from install", (done) ->
-      manager.perform("MyTask", { method: done }) # pass method to the context
+      manager.task "DoneTask", { }, (context) ->
+        context.done() if context.done()
+
+      manager.perform("DoneTask", { done: done }) # pass method to the context
