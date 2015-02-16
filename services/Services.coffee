@@ -61,11 +61,10 @@ module.exports = class Services
               return
 
             options = services[serviceName]
-            @service serviceName, options.module, options.arguments,
-              options.beforeCreate, (service) -> # wait for afterCreate here
+            @service serviceName, options.module, options.arguments, options.beforeCreate, (service) -> # wait for afterCreate here
               if options.afterCreate? then options.afterCreate(service, iterator) else iterator()
           , (err) ->
-            asyncCallback(null, 2)
+            asyncCallback(err, 2)
 
         (asyncCallback) => # models setup
           loader = new FileLoader()
@@ -93,7 +92,7 @@ module.exports = class Services
               asyncCallback(null, 4)
             else
               args.pop()
-              args.push (err) ->
+              args.push (err) -> # push to arguments as callback
                 asyncCallback(err, 4)
 
               services.afterAll(args...)
@@ -104,22 +103,22 @@ module.exports = class Services
     )
 
   ###
-  Adds model to previously defined service
+    Adds model to previously defined service
 
-  @param name [String] Name of model (for injector)
-  @param modelOptions [Object] Map of options
-  @param service [String] Name of service to bind model to
-  @param registerFunctionName [String] Name of function which should be used to register model in the service
-  @return model [Object] Created model
-  
-  @example Add model to previously created service @see service ( using previously injected $connect)
-    $connect.model('MyModel', {
-      modelName: 'my_model'
-      attributes: {
-        my_attribute: 'INTEGER'
-        my_string: 'STRING'
-      }
-    }, 'Database')
+    @param name [String] Name of model (for injector)
+    @param modelOptions [Object] Map of options
+    @param service [String] Name of service to bind model to
+    @param registerFunctionName [String] Name of function which should be used to register model in the service
+    @return model [Object] Created model
+
+    @example Add model to previously created service @see service ( using previously injected $connect)
+      $connect.model('MyModel', {
+        modelName: 'my_model'
+        attributes: {
+          my_attribute: 'INTEGER'
+          my_string: 'STRING'
+        }
+      }, 'Database')
   ###
   model: (name, modelOptions, serviceName = null, registerFunctionName = "define") =>
 
@@ -129,7 +128,7 @@ module.exports = class Services
       service = Injector.getService(serviceName) # get service by name from injector
 
     if not service? # could not be found
-      console.log "[Bluefire Services] Cannot attach model to non existing service"
+      console.log "[Bluefire Services] Cannot attach model to non existing service #{serviceName}"
       return
 
     if @config?
@@ -148,29 +147,28 @@ module.exports = class Services
 
     Injector.addService(name, model)
 
-    #console.log "New model registered: [#{name}]"
     return model
 
   ###
-  Adds service to the service map. This method is synchronous.
+    Adds service to the service map. This method is synchronous.
 
-  @param name [String] the name of service
-  @param module [String|Class] name of module to be loaded or it's class
-  @param options [Object] options passed to constructor of module
-  @param beforeCreate [Function] callback called before construction of service
-  @param afterCreate [Function] callback called after service construction
-  @return [Object] newly created service
+    @param name [String] the name of service
+    @param module [String|Class] name of module to be loaded or it's class
+    @param options [Object] options passed to constructor of module
+    @param beforeCreate [Function] callback called before construction of service
+    @param afterCreate [Function] callback called after service construction
+    @return [Object] newly created service
 
-  @example Create database service with sequelize orm (previously injected $connect used)
-    $connect.service('Database', 'sequelize', {
-      database: 'my_database'
-      username: 'root'
-      password: '1234'
-      options: {
-        dialest: 'postgres'
-        port: 5432
-      }
-    })
+    @example Create database service with sequelize orm (previously injected $connect used)
+      $connect.service('Database', 'sequelize', {
+        database: 'my_database'
+        username: 'root'
+        password: '1234'
+        options: {
+          dialest: 'postgres'
+          port: 5432
+        }
+      })
   ###
   service: (name, module, options = { }, beforeCreate, afterCreate) ->
     Module = if typeof module is "string" then require(module) else module
