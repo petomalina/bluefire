@@ -13,6 +13,7 @@ module.exports = class Configuration
       if not moduleName? or moduleName is ""
         throw new Error("Module to load not set!")
 
+      @moduleName = moduleName
       file = require(moduleName)
 
       for key, value of file
