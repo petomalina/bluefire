@@ -137,7 +137,10 @@ module.exports = class Services
       trueAttributes = { }
       serviceModule = require(@config.data[serviceName].module)
       for attribute, type of modelOptions.attributes
-        trueAttributes[attribute] = serviceModule[type]
+        if typeof type is "string"
+          trueAttributes[attribute] = serviceModule[type]
+        else
+          trueAttributes[attribute] = type
 
     modelOptions.attributes = trueAttributes
 
