@@ -12,7 +12,7 @@ Protocol = require("./Protocol")
 EventEmitter = require("events").EventEmitter
 
 ###
-Main server class which stores tcp connection, packets and parser
+  Main server class which stores tcp connection, packets and parser
 ###
 module.exports = class Connection extends EventEmitter
 
@@ -59,8 +59,8 @@ module.exports = class Connection extends EventEmitter
       for name, packetStructure of packets.ClientPackets
         @packet(name, false, packetStructure)
 
-    catch exception
-      console.log "Connection install exception: #{exception}"
+    catch exception # this is optional, use debug mode to log
+      # console.log "Packet install exception: #{exception}"
       # no packets found
 
     # install router
@@ -75,19 +75,19 @@ module.exports = class Connection extends EventEmitter
     @parser.packet(name, isServerPacket, structure).add(structure)
 
   ###
-  Adds structure to the parser head packet
+    Adds structure to the parser head packet
 
-  @param structure [Object] structure of the head packet
-  @return [Packet] current head packet
+    @param structure [Object] structure of the head packet
+    @return [Packet] current head packet
   ###
   headPacket: (structure) ->
     @parser.getHead().add(structure)
     return @parser.getHead()
 
   ###
-  Replaces the current packet parser with new module
+    Replaces the current packet parser with new module
 
-  @param module [String|Parser] name of module to be set as a parser
+    @param module [String|Parser] name of module to be set as a parser
   ###
   setParser: (module, options = {}) =>
     if typeof module is "string"
@@ -100,10 +100,10 @@ module.exports = class Connection extends EventEmitter
     @parser.initialize(args...)
 
   ###
-  Starts to listen on given port (by argument paseed or configuration)
+    Starts to listen on given port (by argument paseed or configuration)
 
-  @param port [Integer] port to listen on. This will override local configuration
-  @param address [String] address to connect to if is client
+    @param port [Integer] port to listen on. This will override local configuration
+    @param address [String] address to connect to if is client
   ###
   run: (port = null, address = null) =>
 
@@ -134,6 +134,10 @@ module.exports = class Connection extends EventEmitter
     process.stdin.on "end", () ->
       process.stdout.write("Console commander exited")###
 
+  ###
+    Stops current connection system, disabling it to send or receive
+    data. Connection must be then established once more to get working
+  ###
   stop: () ->
     @connection.stop()
 

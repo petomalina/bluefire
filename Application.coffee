@@ -10,14 +10,14 @@ TaskManager = require("./task/TaskManager")
 Connection = require("./connection/Connection")
 
 ###
-Base Bluefire module. When install is called, application will try to load
-various files from folders (see documentation). This will enable structured
-approach to application style.
+  Base Bluefire module. When install is called, application will try to load
+  various files from folders (see documentation). This will enable structured
+  approach to application style.
 ###
 module.exports = class Application extends Connection
 
   ###
-  Creates just basic applicatin with parser and tcp setup
+    Creates just basic applicatin with parser and tcp setup
   ###
   constructor: (isServer = true) ->
     #process.on "uncaughtException", (err) -> # catch all uncaught exceptions here. What to do next?
@@ -35,9 +35,9 @@ module.exports = class Application extends Connection
     Injector.addService("$service", @services) # add connections to injector
 
   ###
-  Installs the whole application using structured approach
+    Installs the whole application using structured approach
 
-  @param callback [Function] function to be called after install
+    @param callback [Function] function to be called after install
   ###
   install: (callback) =>
 
@@ -69,14 +69,14 @@ module.exports = class Application extends Connection
     ], callback)
 
   ###
-  Configurate the application. All currently injectable items will be injected
-  into the callback function
+    Configurate the application. All currently injectable items will be injected
+    into the callback function
 
-  @param function [Function] injected callback for configuration
+    @param function [Function] injected callback for configuration
 
-  @exmaple Configurate the application (application is already created Application instance)
-    application.config ($connect, $router) ->
-      # see documentation for injectable application modules to access API
+    @exmaple Configurate the application (application is already created Application instance)
+      application.config ($connect, $router) ->
+        # see documentation for injectable application modules to access API
   ###
   config: (callback) =>
     Injector.inject(callback, @)
@@ -96,7 +96,7 @@ module.exports = class Application extends Connection
     @onData(session, packetName, data)
 
   ###
-  @virtual 
+    @virtual
   ###
   onData: (session, packetName, data) =>
     # virtual method - override this when needed
