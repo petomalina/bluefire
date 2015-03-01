@@ -41,16 +41,19 @@ module.exports = class Application extends Connection
   ###
   install: (callback) =>
 
-    connectionConfiguration = new Configuration()
+    connectionConfiguration = new Configuration
     connectionConfiguration.load "#{CurrentWorkingDirectory}/configs/connections"
 
-    routesConfiguration = new Configuration()
+    modelsConfiguration = new Configuration
+    modelsConfiguration.load "#{CurrentWorkingDirectory}/configs/models"
+
+    routesConfiguration = new Configuration
     routesConfiguration.load "#{CurrentWorkingDirectory}/configs/routes"
 
-    globalConfiguration = new Configuration() # global configuration
+    globalConfiguration = new Configuration # global configuration
     globalConfiguration.load "#{CurrentWorkingDirectory}/configs/config"
 
-    if globalConfiguration.get "configuration" is "debug"
+    if globalConfiguration.get("configuration") is "debug"
       global.debug = (debugText) ->
         console.log debugText
     else
@@ -62,7 +65,7 @@ module.exports = class Application extends Connection
         @taskManager.install(asyncCallback)
 
       (asyncCallback) =>
-        @services.install(connectionConfiguration, asyncCallback)
+        @services.install(connectionConfiguration, modelsConfiguration, asyncCallback)
 
       (asyncCallback) =>
         super(globalConfiguration, routesConfiguration, asyncCallback) # call server install
