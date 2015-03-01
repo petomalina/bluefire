@@ -1,5 +1,6 @@
 FileLoader = require("../fileLoader/FileLoader") # get the fileloader
 Async = require("async")
+Waterline = require("waterline") # orm/odm support
 
 ###
   Class that encapsulates logic for services including model services
@@ -39,68 +40,91 @@ module.exports = class Services
   constructor: () ->
     # store the main(first) service if no service is defined within $connect.model call
     @mainService = null
+    @objectMapper = new Waterline # initialize waterline
+    @models = { }
+
+  initialize: (options, callback) =>
+    options.defaults.migrate = options.defaults.migrate || "alter"
+
+    # normalize all adapters
+    for adapterName, adapter of options.adapters
+      adapter.identity = adapter.identity || adapterName # set identity
+
+    for modelName, model of @models
+      # normalize model options
+      model.identity = model.identity || modelName
+      model.connection = model.connection || options.defaults.connection
+
+      collection = Waterline.Collection.extend(model)
+      @objectMapper.loadCollection(collection)
+
+    @objectMapper.initialize(options, callback)
 
   # Installs the service manager and adds the newly created instance to Injector as $connect
   # @param callback [Function] function to be called when install is finished
-  install: (@config, callback, modelsFolder = "#{global.CurrentWorkingDirectory}/models/") =>
+  install: (@connectionsConfig, @modelsConfig, callback, modelsFolder = "#{global.CurrentWorkingDirectory}/models/") =>
 
-    services = @config.data
+    services = @connectionsConfig.data.connections
+    defaults = @modelsConfig.data.models
 
-    Async.series([
-        (asyncCallback) =>
-          if services.beforeAll?
-            services.beforeAll (err) ->
-              asyncCallback(err, 1)
-          else
-            asyncCallback(null, 1)
+    waterlineOptions = {
+      adapters: {}
+      connections: {}
+      collections: {}
+      defaults: {}
+    }
 
-        (asyncCallback) => # database setup
-          Async.eachSeries Object.keys(services), (serviceName, iterator) =>
-            if serviceName is "beforeAll" or serviceName is "afterAll"
-              iterator()
-              return
+    Async.series [
+      (asyncCallback) =>
+        ###
+          Loads model configuration file that will set default adapter
+          and migration information
+        ###
+        for def, value of defaults
+          waterlineOptions.defaults[def] = value
 
-            options = services[serviceName]
-            @service serviceName, options.module, options.arguments, options.beforeCreate, (service) -> # wait for afterCreate here
-              if options.afterCreate? then options.afterCreate(service, iterator) else iterator()
-          , (err) ->
-            asyncCallback(err, 2)
+        asyncCallback(null, 1)
 
-        (asyncCallback) => # models setup
-          loader = new FileLoader()
+      (asyncCallback) =>
+        ###
+          Loads all adapters and connection information from connections
+          configuration file
+        ###
+        for serviceName, options of services
+          if not waterlineOptions.adapters[options.adapter]? # do not rewrite same modules
+            waterlineOptions.adapters[options.adapter] = require(options.adapter) # feed adapter
 
-          loader.find modelsFolder, (files) => # get the files
-            for moduleName in files
-              # skip modules that won't meet conditions
-              continue if not /(\w+(Model|Entity))\..+/.test(moduleName)
+          waterlineOptions.connections[serviceName] = options # save connection information
 
-              moduleName = moduleName.split('.')[0]
+        asyncCallback(null, 2)
 
-              module = require(modelsFolder + moduleName)
+      (asyncCallback) =>
+        ###
+          Loads models information from models folder and adds them into collections
+          information for waterlineOptions
+        ###
+        fileLoader = new FileLoader
+        fileLoader.find modelsFolder, (files) =>
+          for moduleName in files
+            continue if not /(\w+(Model|Entity))\..*/.test(moduleName)
 
-              @model(moduleName, module.model, module.service)
+            model = require(modelsFolder + moduleName)
+            modelName = moduleName.split(".")[0];
 
-              console.log("New model registered: #{moduleName}")
+            @model(modelName, model)
 
-            asyncCallback(null, 3)
+          asyncCallback(null, 3)
 
-        (asyncCallback) =>
-          if services.afterAll?
-            args = Injector.resolve(services.afterAll)
-            if args[args.length-1]?
-              services.afterAll(args...)
-              asyncCallback(null, 4)
-            else
-              args.pop()
-              args.push (err) -> # push to arguments as callback
-                asyncCallback(err, 4)
+      (asyncCallback) =>
+        ###
+          Initialize waterline and add it to services
+        ###
+        @initialize waterlineOptions, (err, ontology) ->
+          Injector.addService("ObjectMapper", ontology)
+          asyncCallback(err, 4)
 
-              services.afterAll(args...)
-          else
-            asyncCallback(null, 4)
-      ], () ->
+    ], () ->
       callback(null, 2)
-    )
 
   ###
     Adds model to previously defined service
@@ -108,49 +132,26 @@ module.exports = class Services
     @param name [String] Name of model (for injector)
     @param modelOptions [Object] Map of options
     @param service [String] Name of service to bind model to
-    @param registerFunctionName [String] Name of function which should be used to register model in the service
     @return model [Object] Created model
 
     @example Add model to previously created service @see service ( using previously injected $connect)
       $connect.model('MyModel', {
-        modelName: 'my_model'
+        tableName: 'my_model'
         attributes: {
-          my_attribute: 'INTEGER'
-          my_string: 'STRING'
+          my_attribute: 'string'
+          my_string: 'integer'
+          ext_attribute: {
+            type: 'string'
+            size: 8 # string of size 8
+          }
         }
       }, 'Database')
   ###
-  model: (name, modelOptions, serviceName = null, registerFunctionName = "define") =>
+  model: (name, modelOptions) =>
+    if not @objectMapper?
+      throw new Error("No ObjectMapper was defined")
 
-    if serviceName is null and @mainService isnt null
-      service = @mainService
-    else if service isnt null
-      service = Injector.getService(serviceName) # get service by name from injector
-
-    if not service? # could not be found
-      console.log "[Bluefire Services] Cannot attach model to non existing service #{serviceName}"
-      return
-
-    if @config?
-      # calculation of true attributes from service model
-      # this is now only for sequelize
-      trueAttributes = { }
-      serviceModule = require(@config.data[serviceName].module)
-      for attribute, type of modelOptions.attributes
-        if typeof type is "string"
-          trueAttributes[attribute] = serviceModule[type]
-        else
-          trueAttributes[attribute] = type
-
-    modelOptions.attributes = trueAttributes
-
-    definitionArguments = Injector.resolve(service[registerFunctionName], modelOptions)
-
-    model = service[registerFunctionName](definitionArguments...) # splat arguments
-
-    Injector.addService(name, model)
-
-    return model
+    @models[name] = modelOptions
 
   ###
     Adds service to the service map. This method is synchronous.
