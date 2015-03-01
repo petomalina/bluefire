@@ -7,7 +7,8 @@
 ###
 
 require("should")
-Services = require("../services/Services.coffee")
+Services = require("../services/Services")
+Configuration = require("../config/Configuration")
 
 class TestService
 
@@ -19,14 +20,6 @@ class TestService
     return @arg + arg
 
   testMethodTwo: (@arg) ->
-
-  def: (name, options) ->
-    @models[name] = options
-    return false # just to keep difference
-
-  define: (name, options) ->
-    @models[name] = options
-    return true
 
 describe "Services", () ->
 
@@ -57,22 +50,86 @@ describe "Services", () ->
       services.service("MyService", TestService)
       Injector.getService("MyService").arg.should.be.eql(5)
 
+  # this needs to be redesigned
   describe "#model()", () ->
     services = null
+    options = {
+      adapters: {
+        disk: require("sails-disk")
+      }
+      connections: {
+        disk: {
+          adapter: "disk"
+        }
+      }
+      defaults: {
+        connection: "disk"
+        migrate: "drop"
+      }
+    }
+
+    mapper = null
 
     it "should create the service to be able to create models", () ->
       services = new Services
       (services?).should.be.true
       services.service("MyService", TestService)
 
-    it "should add model to the created service", () ->
-      res = services.model("MyModel", { a: 5, b: 6 } , "MyService", "def")
-      (res?).should.be.true
-      res.should.be.false
+    it "should add model with default values into mapper", () ->
+      services.model "MyModel", {
+        attributes: {
+          text: "string"
+        }
+      }
 
-    it "should test predefined register function", () ->
-      res = services.model("MyModel", { a: 7, b: 8}, "MyService")
-      (res?).should.be.true
-      res.should.be.true
+    it "should try to override identity of new model", () ->
+      services.model "OtherModel", {
+        identity: "model"
+        attributes: {
+          number: "integer"
+        }
+      }
+
+    it "should initialize om with sails-disk",(done) ->
+      services.initialize options, (err, ontology) ->
+        mapper = ontology
+        done()
+
+    it "should check models and adapters in mapper", () ->
+      (mapper?).should.be.true
+      (mapper.collections?).should.be.true
+      (mapper.collections.mymodel?).should.be.true
+      (mapper.collections.model?).should.be.true # overriden identity
+
+    it "should try to create new model", (done) ->
+      mapper.collections.model.create { number: 5 }, (err, model) ->
+        mapper.collections.model.findOne { number: 5 }, (err, numberModel) ->
+          numberModel.number.should.be.eql(5)
+          done()
+
+    it "should try to find all", (done) ->
+      mapper.collections.model.find { number: 5 }, (err, numbers) ->
+        numbers.length.should.be.eql(1)
+        done()
 
   describe "#install()", () ->
+    services = null
+
+    it "should construct services instance", () ->
+      services = new Services
+      (services?).should.be.true
+
+    it "should try to install services", (done) ->
+
+      connectionConfiguration = new Configuration
+      connectionConfiguration.load("#{__dirname}/project/configs/connections")
+
+      modelsConfiguration = new Configuration
+      modelsConfiguration.load("#{__dirname}/project/configs/models")
+
+      services.install connectionConfiguration, modelsConfiguration, (err, result) ->
+        if not err?
+          done()
+        else
+          throw new Error(err.message);
+      , "#{__dirname}/project/models/"
