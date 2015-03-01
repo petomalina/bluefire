@@ -44,7 +44,7 @@ describe "TaskManager", () ->
 
   describe "#install()", () ->
     it "should try to install tasks", () ->
-      manager.install(null, "#{process.cwd()}/test/project/tasks/")
+      manager.install(null, "#{__dirname}/project/tasks/")
 
     it "should check tasks that should not be registered", () ->
       (manager.get(".gitkeep")?).should.be.false # we don't want to register gitkeep
