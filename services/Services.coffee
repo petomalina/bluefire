@@ -106,7 +106,7 @@ module.exports = class Services
         fileLoader = new FileLoader
         fileLoader.find modelsFolder, (files) =>
           for moduleName in files
-            continue if not /(\w+(Model|Entity))\..*/.test(moduleName)
+            continue if /^\..*$/.test(moduleName)
 
             model = require(modelsFolder + moduleName)
             modelName = moduleName.split(".")[0];
