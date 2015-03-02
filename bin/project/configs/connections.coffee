@@ -1,68 +1,18 @@
 ###
-  This module consists of services that should be created.
-  You should register here your database connections, cache,
-  helper services etc.
+  Connections are services that are used to save or retrieve data.
+  You can specify here services you want to use and link models to them,
+  so you will be able to use waterline logic on them
 
-  These modules will be singletons in whole project. While
-  injecting them, only the same instance will be passed each
-  time.
+  See documentation for waterline modules used on how to use your specified
+  connection
 ###
-module.exports = {
+module.exports .connections = {
 
   ###
-  # Simple example
-
-  Database: {
-    module: "sequelize"
-
-    arguments: {
-      database: "my_database"
-      username: "my_user"
-      password: "my_password"
-
-      options: {
-        dialect: "postgres"
-      }
-    }
+    Default connection is set to disk. This will create database inside
+    the file so you don't need to setup database.
+  ###
+  disk: {
+    adapter: "sails-disk"
   }
-  ###
-
-  ###
-  # Extended example
-
-  Database: {
-    module: "sequelize" # this is now only supported ORM
-
-    # arguments that should be passed into the module, see
-    # documentation on what should be passed
-    arguments: {
-      database: "my_database"
-      username: "my_user"
-      password: "my_password"
-
-      options: {
-        # you will need appropriate module
-        dialect: "postgres" # or mysql, sqlite, mariasql
-        port: 5432
-
-        define: {
-          # camel case may cause errors on some configurations of postgres
-          createdAt: "created_at"
-          updatedAt: "updated_at"
-          deletedAt: "deleted_at"
-        }
-
-        # enable/disable logging of database queries
-        # logging: () ->
-      }
-    }
-
-    # lifecycle methods
-    beforeCreate: (options, moduleArgs) ->
-
-    afterCreate: (service) ->
-      service.authenticate().complete(err) -> # authenticate with service
-        console.log err if err?
-  }
-  ###
 }
