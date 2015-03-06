@@ -55,13 +55,16 @@ module.exports = class Application extends Connection
           asyncCallback(err, 1)
       
       (asyncCallback) =>
-        @taskManager.install(asyncCallback)
+        @taskManager.install (err) ->
+          asyncCallback(err, 2)
 
       (asyncCallback) =>
-        @services.install(@configurationManager.get("connections"), @configurationManager.get("models"), asyncCallback)
+        @services.install @configurationManager.get("connections"), @configurationManager.get("models"), (err) ->
+          asyncCallback(err, 3)
 
       (asyncCallback) =>
-        super(@configurationManager.get("config"), @configurationManager.get("routes"), asyncCallback) # call server install
+        super @configurationManager.get("config"), @configurationManager.get("routes"), (err) -> # call server install
+          asyncCallback(err, 4)
     ], callback)
 
   ###

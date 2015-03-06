@@ -111,6 +111,10 @@ describe "Services", () ->
       mapper.collections.model.find { number: 5 }, (err, numbers) ->
         numbers.length.should.be.eql(1)
         done()
+        
+    it "should teardown mapper", (done) ->
+      services.objectMapper.teardown (err) ->
+        done(err)
 
   describe "#install()", () ->
     services = null
@@ -127,9 +131,13 @@ describe "Services", () ->
       modelsConfiguration = new Configuration
       modelsConfiguration.load("#{__dirname}/project/configs/models")
 
-      services.install connectionConfiguration, modelsConfiguration, (err, result) ->
+      services.install connectionConfiguration, modelsConfiguration, (err) ->
         if not err?
           done()
         else
-          throw new Error(err.message);
+          done(err)
       , "#{__dirname}/project/models/"
+      
+    it "should teardown mapper", (done) ->
+      services.objectMapper.teardown (err) ->
+        done(err)

@@ -56,4 +56,4 @@ module.exports = class TaskManager
 				# get task name by the name of the file without ending
 				@task(moduleName.split(".")[0], taskOptions.options, taskOptions.action)
 
-			callback(null, 2) if callback?
+			callback(null) if callback?

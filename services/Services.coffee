@@ -45,6 +45,7 @@ module.exports = class Services
 
   initialize: (options, callback) =>
     options.defaults.migrate = options.defaults.migrate || "alter"
+    console.dir options
 
     # normalize all adapters
     for adapterName, adapter of options.adapters
@@ -123,8 +124,8 @@ module.exports = class Services
           Injector.addService("ObjectMapper", ontology)
           asyncCallback(err, 4)
 
-    ], () ->
-      callback(null, 3)
+    ], (err) ->
+      callback(err)
 
   ###
     Adds model to previously defined service

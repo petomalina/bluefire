@@ -65,7 +65,7 @@ module.exports = class Connection extends EventEmitter
     # install router
     @router.install(routerConfiguration)
 
-    callback(null, 4)
+    callback(null)
 
   ###
   Adds given packet to the parser.
