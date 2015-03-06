@@ -35,4 +35,7 @@ module.exports = class ConfigurationManager
     return configuration
     
   get: (name) =>
+    if not @configurations[name]?
+      @configurations[name] = new Configuration # create new configuration so we can pass it
+    
     return @configurations[name]
