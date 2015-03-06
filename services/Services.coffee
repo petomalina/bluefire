@@ -124,7 +124,7 @@ module.exports = class Services
           asyncCallback(err, 4)
 
     ], () ->
-      callback(null, 2)
+      callback(null, 3)
 
   ###
     Adds model to previously defined service

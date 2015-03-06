@@ -3,7 +3,8 @@ global.CurrentWorkingDirectory = process.cwd() # set current dit to global for e
 DependencyInjector = require("./di/Injector")
 
 Async = require("async")
-Configuration = require("./config/Configuration")
+Configuration = require("./config").Configuration
+ConfigurationManager = require("./config").ConfigurationManager
 
 Services = require("./services/Services")
 TaskManager = require("./task/TaskManager")
@@ -40,19 +41,6 @@ module.exports = class Application extends Connection
     @param callback [Function] function to be called after install
   ###
   install: (callback) =>
-
-    connectionConfiguration = new Configuration
-    connectionConfiguration.load "#{CurrentWorkingDirectory}/configs/connections"
-
-    modelsConfiguration = new Configuration
-    modelsConfiguration.load "#{CurrentWorkingDirectory}/configs/models"
-
-    routesConfiguration = new Configuration
-    routesConfiguration.load "#{CurrentWorkingDirectory}/configs/routes"
-
-    globalConfiguration = new Configuration # global configuration
-    globalConfiguration.load "#{CurrentWorkingDirectory}/configs/config"
-
     if globalConfiguration.get("configuration") is "debug"
       global.debug = (debugText) ->
         console.log debugText
@@ -62,13 +50,18 @@ module.exports = class Application extends Connection
 
     Async.series([
       (asyncCallback) =>
+        @configurationManager = new ConfigurationManager
+        @configurationManager.load (err) ->
+          asyncCallback(err, 1)
+      
+      (asyncCallback) =>
         @taskManager.install(asyncCallback)
 
       (asyncCallback) =>
-        @services.install(connectionConfiguration, modelsConfiguration, asyncCallback)
+        @services.install(@configurationManager.get("connections"), @configurationManager.get("models"), asyncCallback)
 
       (asyncCallback) =>
-        super(globalConfiguration, routesConfiguration, asyncCallback) # call server install
+        super(@configurationManager.get("config"), @configurationManager.get("routes"), asyncCallback) # call server install
     ], callback)
 
   ###
