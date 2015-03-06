@@ -9,6 +9,11 @@ module.exports = class FileLoader
   @param options [Object] FileLoader options. May be recursive(true|false) and root(will override node_modules relative to the root)
   ###
   constructor: (@options = { }) ->
+    if not @options.recursive?
+      @options.recursive = false
+
+    if not @options.root?
+      @options.root = ''
 
   ###
   Finds all files in the given path (relative to node_modules/). If directory does
@@ -18,12 +23,6 @@ module.exports = class FileLoader
   @param callback [Function] callback function with array of file names
   ###
   find: (path, callback) =>
-    if not @options.recursive?
-      @options.recursive = false
-
-    if not @options.root?
-      @options.root = ''
-
     directory = @options.root + path
 
     FileSystem.readdir directory, (err, files) =>
