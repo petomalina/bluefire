@@ -3,7 +3,6 @@ try
 catch exception
   Session = require("../session/Session")
 
-FileLoader = require("../fileLoader/FileLoader")
 Parser = require("../parser/Parser")
 Router = require("../routing/Router")
 Configuration = require("../config/Configuration")

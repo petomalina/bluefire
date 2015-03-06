@@ -104,7 +104,7 @@ module.exports = class Services
           information for waterlineOptions
         ###
         fileLoader = new FileLoader
-        fileLoader.find modelsFolder, (files) =>
+        fileLoader.find modelsFolder, (err, files) =>
           for moduleName in files
             continue if /^\..*$/.test(moduleName)
 

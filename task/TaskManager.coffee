@@ -47,7 +47,7 @@ module.exports = class TaskManager
 	install: (callback, taskFolder = "#{global.CurrentWorkingDirectory}/tasks/") =>
 		loader = new FileLoader()
 
-		loader.find taskFolder, (files) =>
+		loader.find taskFolder, (err, files) =>
 			for moduleName in files
 				# ignore modules that won't meet conditions
 				continue if not /(\w+(Task|Job))\..+/.test(moduleName)

@@ -28,6 +28,6 @@ module.exports = class FileLoader
 
     FileSystem.readdir directory, (err, files) =>
       if err?
-        callback([])
+        callback(err, [])
       else
-        callback(files)
+        callback(null, files)
