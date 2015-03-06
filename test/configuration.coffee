@@ -1,5 +1,6 @@
-Configuration = require "../config/Configuration"
-require "should"
+Configuration = require("../config/").Configuration
+ConfigurationManager = require("../config").ConfigurationManager
+require("should")
 
 describe "Configuration", () ->
 	conf = null
@@ -45,3 +46,29 @@ describe "Configuration", () ->
 
 		it "should check the configuration if it\"s empty (is empty)", () ->
 			conf.empty().should.be.true
+			
+describe "ConfigurationManager", () ->
+	
+	describe "#constructor()", () ->
+		it "should correctly construct configuration manager", () ->
+			manager = new ConfigurationManager(__dirname + "/project/configs")
+			(manager.baseDir?).should.be.true
+			
+		it "should try to construct configuration manager without base dir", (done) ->
+			try
+				manager = new ConfigurationManager
+			catch exception
+				done()
+				
+	describe "#load()", () ->
+		manager = null
+		
+		it "should initialize manager correctly", () ->
+			manager = new ConfigurationManager(__dirname + "/project/configs")
+			
+		it "should try to load all files from project configs", (done) ->
+			manager.load (err) ->
+				manager.get("config").should.be.instanceOf(Configuration)
+				manager.get("connections").should.be.instanceOf(Configuration)
+				manager.get("models").should.be.instanceOf(Configuration)
+				done()
