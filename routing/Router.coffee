@@ -37,12 +37,11 @@ module.exports = class Router
   Creates new controller for the router
 
   @param name [String] name of the controller to by stored by
-  @param module [Object] options for module
-  @option options [String] name of module with the controller class
-  @option options [Object] controller class
+  @param module [Object|Constructor] already constructed object or constructor that will be injected
 
-  @example Creating new controller (assume application/myControllers/controller already exists) 
-    $router.controller('myController', 'application/myControllers/controller')
+  @example Creating new controller (all properties are injected inside constructor)
+    $router.controller "myController", class MyController
+      constructor: (MyModel) ->
   ###
   controller: (name, module) ->
     if typeof(module) is 'object' # accept object as a controller
