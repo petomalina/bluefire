@@ -1,6 +1,6 @@
 {
   "name": "bluefire",
-  "version": "0.0.32a",
+  "version": "0.0.33a",
   "description": "Lightweight tcp framework",
   "main": "index.coffee",
   "scripts": {
