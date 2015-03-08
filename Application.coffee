@@ -19,13 +19,17 @@ module.exports = class Application extends Connection
 
   ###
     Creates just basic applicatin with parser and tcp setup
+    
+    @param options [Object] an object of options
   ###
-  constructor: (isServer = true) ->
-    #process.on "uncaughtException", (err) -> # catch all uncaught exceptions here. What to do next?
-    #  console.log "Uncaught exception captured : #{err}"
-    global.Injector = new DependencyInjector() #establish injector
+  constructor: (options) ->
+    options.isServer = if options.isServer is null then true else options.isServer
+    options.configurations = options.configurations || "#{global.CurrentWorkingDirectory}/configs/"
+    
+    global.Injector = new DependencyInjector #establish injector
+    @configurations = new ConfigurationManager(options.configurations)
 
-    super(isServer) # creates defualt parser and injects server
+    super(options.isServer) # creates defualt parser and injects server
 
     @taskManager = new TaskManager()
     # add task manager to the injector services
@@ -41,7 +45,7 @@ module.exports = class Application extends Connection
     @param callback [Function] function to be called after install
   ###
   install: (callback) =>
-    if globalConfiguration.get("configuration") is "debug"
+    if @configurations.get("config").get("configuration") is "debug"
       global.debug = (debugText) ->
         console.log debugText
     else
@@ -50,8 +54,7 @@ module.exports = class Application extends Connection
 
     Async.series([
       (asyncCallback) =>
-        @configurationManager = new ConfigurationManager
-        @configurationManager.load (err) ->
+        @configurations.load (err) ->
           asyncCallback(err, 1)
       
       (asyncCallback) =>
@@ -59,11 +62,11 @@ module.exports = class Application extends Connection
           asyncCallback(err, 2)
 
       (asyncCallback) =>
-        @services.install @configurationManager.get("connections"), @configurationManager.get("models"), (err) ->
+        @services.install @configurations.get("connections"), @configurations.get("models"), (err) ->
           asyncCallback(err, 3)
 
       (asyncCallback) =>
-        super @configurationManager.get("config"), @configurationManager.get("routes"), (err) -> # call server install
+        super @configurations.get("config"), @configurations.get("routes"), (err) -> # call server install
           asyncCallback(err, 4)
     ], callback)
 
@@ -79,7 +82,7 @@ module.exports = class Application extends Connection
   ###
   config: (callback) =>
     Injector.inject(callback, @)
-
+  
   onConnect: (session) ->
     # virtual method - override this when needed
 

@@ -63,7 +63,6 @@ module.exports = class Router
       console.log 'New route registered: [' + controller + ']->' + action
 
   call: (packetName, session, data) =>
-
     if @paths[packetName]?
       path = @paths[packetName]
 

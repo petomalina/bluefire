@@ -2,7 +2,7 @@ module.exports = {
 
   configuration: "debug" # debug, release
 
-  port: 8888
+  port: 9999
 
   parser: "packetbuddy"
 

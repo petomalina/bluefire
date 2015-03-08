@@ -45,7 +45,6 @@ module.exports = class Services
 
   initialize: (options, callback) =>
     options.defaults.migrate = options.defaults.migrate || "alter"
-    console.dir options
 
     # normalize all adapters
     for adapterName, adapter of options.adapters

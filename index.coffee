@@ -7,9 +7,9 @@ Application = require("./Application")
 module.exports.Application = Application
 
 module.exports.ClientApplication = class ClientApplication extends Application
-  constructor: () ->
-    super(false)
+  constructor: (configFolder) ->
+    super({ isServer: false, configurations: configFolder })
     
 module.exports.ServerApplication = class ServerApplication extends Application
-  constructor: () ->
-    super(true)
+  constructor: (configFolder) ->
+    super({ isServer: true, configurations: configFolder })

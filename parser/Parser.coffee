@@ -33,7 +33,7 @@ module.exports = class Parser
 
   @param conditionField[String] name of condition field in packet
   ###
-  setConditionField:(@conditionField) ->
+  setConditionField:(@conditionField) =>
 
   ###
   Registers packet by given name, location and condition
@@ -96,7 +96,7 @@ module.exports = class Parser
   @param callback [Function(name,data)] callback to be called after parse
   @param packetname [String] optional packet name if already known
   ###
-  parse: (buffer, callback, packetName = null) ->
+  parse: (buffer, callback, packetName = null) =>
     parsedData = { }
     head = @getHead()
     index = 0 # current byte index for parser

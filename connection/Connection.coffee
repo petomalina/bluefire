@@ -105,7 +105,7 @@ module.exports = class Connection extends EventEmitter
     @param address [String] address to connect to if is client
   ###
   run: (port = null, address = null) =>
-
+    
     if not @configuration? # repair missing configuration (no install)
       @configuration = new Configuration
 
