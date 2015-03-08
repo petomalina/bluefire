@@ -8,6 +8,7 @@ describe "Application", () ->
   server = null
   client = null
   
+  # configuration folder should be now passed into the application in constructor
   configs = "#{__dirname}/project/configs/"
 
   afterEach () ->
@@ -39,7 +40,7 @@ describe "Application", () ->
   describe "Simple application test with ping", () ->
     it "should ping server application from client after connect", (done) ->
       server = new ServerApplication(configs)
-      client = null
+      client = null # declaration of client so $router in config can see it
 
       server.config ($connection, $router) ->
         $connection.headPacket [
@@ -57,9 +58,11 @@ describe "Application", () ->
           server.stop()
           client.stop()
           done()
-          
-        server.run(testingPort)
         
+        # run after configuration is done, as it may in some time be asynchronous
+        server.run(testingPort)
+      
+      # due to injections, this must be initialized after first one is configured
       client = new ClientApplication(configs)
 
       client.config ($connection) ->
@@ -77,4 +80,5 @@ describe "Application", () ->
             value: "abc"
           }
           
+        # run after configuration is done, as it may in some time be asynchronous
         client.run(testingPort, "127.0.0.1")
