@@ -22,7 +22,7 @@ module.exports = class Application extends Connection
     
     @param options [Object] an object of options
   ###
-  constructor: (options) ->
+  constructor: (options = { }) ->
     options.isServer = if options.isServer is null then true else options.isServer
     options.configurations = options.configurations || "#{global.CurrentWorkingDirectory}/configs/"
     
