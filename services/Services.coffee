@@ -121,6 +121,11 @@ module.exports = class Services
         ###
         @initialize waterlineOptions, (err, ontology) ->
           Injector.addService("ObjectMapper", ontology)
+
+          # inject created models
+          for modelName, model of ontology.collections
+            Injector.addService(modelName.charAt(0).toUpperCase() + modelName.slice(1), model)
+
           asyncCallback(err, 4)
 
     ], (err) ->
