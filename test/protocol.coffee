@@ -68,6 +68,7 @@ describe "Protocol", () ->
 
     it "should correctly receive two packets that are glued together", (done) ->
       protocol = new Protocol()
+      protocol.initializeSession(mockSession)
 
       buffer = new Buffer(20)
       buffer.writeUInt32LE(6, 0)
@@ -94,6 +95,7 @@ describe "Protocol", () ->
 
     it "should correcty receive two heavy fragmented packets", (done) ->
       protocol = new Protocol()
+      protocol.initializeSession(mockSession)
 
       buffer = new Buffer(20)
       buffer.writeUInt32LE(6, 0)
@@ -124,3 +126,32 @@ describe "Protocol", () ->
         buffer.readUInt16LE(4).should.be.eql(5)
 
       done()
+
+    it "should correctly receive two heavy fragmented lengths of packets", (done) ->
+      protocol = new Protocol
+      protocol.initializeSession(mockSession)
+
+      buffer = new Buffer(20)
+      buffer.writeUInt32LE(6, 0)
+      buffer.writeUInt32LE(800, 4)
+      buffer.writeUInt16LE(128, 8)
+
+      buffer.writeUInt32LE(6, 10)
+      buffer.writeUInt32LE(1800, 14)
+      buffer.writeUInt16LE(5, 18)
+
+      protocol.receive buffer.slice(0, 2), mockSession, (buffer) ->
+        throw new error("Missing parts of buffer")
+
+      protocol.receive buffer.slice(2, 5), mockSession, (buffer) ->
+        throw new error("Missing parts of buffer")
+
+      protocol.receive buffer.slice(5, 10), mockSession, (buffer) ->
+        (buffer?).should.be.true
+        buffer.readUInt32LE(0).should.be.eql(800)
+        buffer.readUInt16LE(4).should.be.eql(128)
+
+      protocol.receive buffer.slice(10), mockSession, (buffer) ->
+        (buffer?).should.be.true
+        buffer.readUInt32LE(0).should.be.eql(1800)
+        buffer.readUInt16LE(4).should.be.eql(5)
