@@ -15,7 +15,43 @@ module.exports = class Protocol
     # traffic is packets per second
     # loadBuffer is buffer that stores partial reads
     # bufferLoader is the current index of the load in the loadBuffer
-    session.protocol = { read: 0, write: 0, traffic: 0, loadBuffer: null, bufferLoader: 0 }
+    session.protocol = { read: 0, traffic: 0, packets: [] }
+
+  ###
+    Gets length of protocol data for specified protocol
+  ###
+  length: (packets) ->
+    len = 0
+    for buffer in packets
+      len += buffer.length
+
+    return len
+
+  ###
+    Fetches given number of bytes from given protocol
+    Will not control length before fetching
+  ###
+  fetch: (packets, length) ->
+    buffer = new Buffer(length)
+    currentIndex = 0
+
+    loop
+      packet = packets.splice(0, 1)[0]
+
+      if packet.length is length - currentIndex # exact size
+        packet.copy(buffer, currentIndex)
+        break
+      else if packet.length < length - currentIndex
+        packet.copy(buffer, currentIndex)
+        currentIndex += packet.length
+      else # packet.length > length - currentIndex
+        packet.copy(buffer, currentIndex, 0, length - currentIndex)
+        rest = packet.slice(length - currentIndex)
+        currentIndex += length - currentIndex
+        packets.unshift(rest)
+        break;
+
+    return buffer
 
   ###
   Writes buffer data and protocol data to the socket stream
@@ -35,46 +71,23 @@ module.exports = class Protocol
   ###
   Receives the data from the session and parses the protocol data
 
-  @param data [Buffer] a buffer that was received by socket
+  @param newBuffer [Buffer] a buffer that was received by socket
   @param session [Session] a session that received data
   @return [Buffer|null] returns Buffer if protocol was followed, else null
   ###
-  receive: (buffer, session, callback) =>
+  receive: (newBuffer, session, callback) =>
     protocol = session.protocol
+    protocol.packets.push(newBuffer) if newBuffer?
 
-    if protocol.read is 0 # receive new packet
+    if protocol.read is 0 and @length(protocol.packets) > 4
+      buffer = @fetch(protocol.packets, 4)
+      protocol.read = buffer.readUInt32LE(0)
+
+    if protocol.read isnt 0 and @length(protocol.packets) >= protocol.read
+      buffer = @fetch(protocol.packets, protocol.read)
+
+      protocol.read = 0
       protocol.traffic++
-      protocol.read = 0 # clear read property
 
-      length = buffer.readUInt32LE(0)
-      buffer = buffer.slice(4) # shift start index to the right
-
-      if buffer.length is length # whole packet received
-        callback(buffer) if callback?
-        return
-      else
-        protocol.read = length # set bytes to read
-        protocol.loadBuffer = new Buffer(length)
-        protocol.bufferLoader = 0 # reset buffer loader
-
-    if buffer.length is 0 # skip null packets (or just 4 bytes as length)
-      return
-
-    if buffer.length is protocol.read # we need to read the same ammount
-      buffer.copy(protocol.loadBuffer, protocol.bufferLoader)
-      protocol.read = 0 # reset read cause buffer is now ok
-
-      callback(protocol.loadBuffer) if callback?
-    else if buffer.length < protocol.read # not enough still
-      buffer.copy(protocol.loadBuffer, protocol.bufferLoader)
-      protocol.read -= buffer.length # decrement by buffer length (we need less now)
-      protocol.bufferLoader += buffer.length # shift right
-
-    else # buffer.length > protocol.read
-      buffer.copy(protocol.loadBuffer, protocol.bufferLoader, 0, protocol.read)
-      callback(protocol.loadBuffer)
-
-      buffer = buffer.slice(protocol.read) # slice to the new buffer
-      protocol.read = 0 # reset read to 0 as we need to do one more iteration and start again
-
-      @receive(buffer, session, callback)
+      callback(buffer) if callback?
+      @receive(null, session, callback) # recursive call
