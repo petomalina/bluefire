@@ -5,7 +5,14 @@
 module.exports = {
 
   ###
-  Registers route for Ping packet into Ping controller and it's onPing action
+    Every route should have associated:
+    - packet name
+    - controller
+    - action in controller
   ###
-  Ping: { controller: "Ping", action: "onPing" }
+
+  # redirect MyPacket from "packets" configuration to controller named "PingController"
+  # and action "onPing"
+
+  # MyPacket: { controller: "PingController", action: "onPing" }
 }
