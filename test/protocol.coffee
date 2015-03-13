@@ -204,3 +204,4 @@ describe "Protocol", () ->
         (buffer?).should.be.true
         buffer.readUInt32LE(0).should.be.eql(1800)
         buffer.readUInt16LE(4).should.be.eql(5)
+        done()
