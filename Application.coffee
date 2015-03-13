@@ -45,7 +45,7 @@ module.exports = class Application extends Connection
     @param callback [Function] function to be called after install
   ###
   install: (callback) =>
-    if @configurations.get("config").get("configuration") is "debug"
+    if @configurations.get("config").get("environment") is "dev"
       global.debug = (debugText) ->
         console.log debugText
     else
