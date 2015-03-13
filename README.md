@@ -23,8 +23,12 @@ $ sudo npm install -g bluefire
 
 If you want to use [structured approach to bluefire](https://github.com/Gelidus/bluefire/wiki/Structured-approach) (in directory you want new project):
 ```sh
-$ bluefire new yourProjectName
+$ bluefire new myproject # this will create new server project
 ```
+
+## Usage
+
+See [step by step wiki guide](https://github.com/Gelidus/bluefire/wiki/Step--by-step-guide).
 
 ## Examples
 
@@ -32,14 +36,19 @@ See [examples repository](https://github.com/Gelidus/bluefire-examples).
 
 ## API
 
-Check [wiki](https://github.com/Gelidus/bluefire/wiki) on how to use the Bluefire API 
+Check [wiki](https://github.com/Gelidus/bluefire/wiki) for Bluefire API usage.
 
 ## ORM/ODM Compatibility
 
-Check [wiki](https://github.com/Gelidus/bluefire/wiki/ORM-ODM-Compatibility) for ORM/ODM Compatibility
+Check [wiki](https://github.com/Gelidus/bluefire/wiki/ORM-ODM-Compatibility) for ORM/ODM Compatibility.
 
 ## Contribute
 
 Any contributions to the project are welcome! See Issues or Future features to find out what you can do. Also feel free to contact [me](https://github.com/Gelidus) :)
 
 Before trying to contribute, please read [Contribute to Bluefire](https://github.com/Gelidus/bluefire/wiki/Contribute-to-Bluefire)
+
+## Testing
+```bash
+npm test
+```
