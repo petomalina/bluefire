@@ -31,6 +31,55 @@ describe "Protocol", () ->
       (mockSession.lastData?).should.be.true
       mockSession.lastData.length.should.be.eql(9)
 
+  describe "#length()", () ->
+    it "should correctly calculate length of protocol packets", () ->
+      protocol = new Protocol
+
+      packets = [new Buffer(4), new Buffer(7)]
+
+      protocol.length(packets).should.be.eql(11)
+
+  describe "#fetch()", () ->
+    it "should be able to fetch exact data from protocol", () ->
+      protocol = new Protocol
+
+      packets = [new Buffer("Hello")]
+
+      fetch = protocol.fetch(packets, 5)
+      fetch.length.should.be.eql(5)
+      fetch.toString().should.be.eql("Hello")
+
+    it "should be able to fetch part of data from protocol", () ->
+      protocol = new Protocol
+
+      packets = [new Buffer("Hello")]
+
+      fetch = protocol.fetch(packets, 3)
+      fetch.length.should.be.eql(3)
+      fetch.toString().should.be.eql("Hel")
+      packets[0].toString().should.be.eql("lo")
+
+    it "should be able to fetch from two parts (exact size)", () ->
+      protocol = new Protocol
+
+      packets = [new Buffer("Hello"), new Buffer("World")]
+
+      fetch = protocol.fetch(packets, 10)
+      fetch.length.should.be.eql(10)
+      fetch.toString().should.be.eql("HelloWorld")
+      packets.length.should.be.eql(0)
+
+    it "should fetch data from parts and leave rest", () ->
+      protocol = new Protocol
+
+      packets = [new Buffer("Hello"), new Buffer("World"), new Buffer("rest")]
+
+      fetch = protocol.fetch(packets, 10)
+      fetch.length.should.be.eql(10)
+      fetch.toString().should.be.eql("HelloWorld")
+      packets.length.should.be.eql(1)
+      packets[0].toString().should.be.eql("rest")
+
   describe "#receive()", () ->
     it "should receive data from the socket (full sized)", (done) ->
       protocol = new Protocol()
