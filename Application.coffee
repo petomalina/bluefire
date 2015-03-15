@@ -8,6 +8,7 @@ ConfigurationManager = require("./config").ConfigurationManager
 
 Services = require("./services/Services")
 TaskManager = require("./task/TaskManager")
+PolicyManager = require("./policies/PolicyManager")
 Connection = require("./connection/Connection")
 
 ###
@@ -35,8 +36,10 @@ module.exports = class Application extends Connection
     # add task manager to the injector services
     Injector.addService("$taskmgr", @taskManager)
 
-    @services = new Services()
+    @policyManager = new PolicyManager()
+    Injector.addService("$policies", @policyManager)
 
+    @services = new Services()
     Injector.addService("$service", @services) # add connections to injector
 
   ###
@@ -62,12 +65,16 @@ module.exports = class Application extends Connection
           asyncCallback(err, 2)
 
       (asyncCallback) =>
-        @services.install @configurations.get("connections"), @configurations.get("models"), (err) ->
+        @policyManager.install (err) ->
           asyncCallback(err, 3)
 
       (asyncCallback) =>
-        super @configurations.get("config"), @configurations.get("routes"), (err) -> # call server install
+        @services.install @configurations.get("connections"), @configurations.get("models"), (err) ->
           asyncCallback(err, 4)
+
+      (asyncCallback) =>
+        super @configurations.get("config"), @configurations.get("routes"), (err) -> # call server install
+          asyncCallback(err, 5)
     ], callback)
 
   ###
