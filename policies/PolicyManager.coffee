@@ -12,10 +12,13 @@ module.exports = class PolicyManager
   ###
   get: (names) =>
     if typeof names is "string"
+      throw new Error("Policy #{name} not registered") if not @policies[names]?
       return @policies[names]
     else
       policies = []
-      policies.push(@get(policy)) for policy in names
+      for policy in names
+        throw new Error("Policy #{name} not registered") if not policy?
+        policies.push(@get(policy))
 
       return policies
 
@@ -43,6 +46,5 @@ module.exports = class PolicyManager
   ###
   perform: (name, session, data, next) =>
     policy = @get(name)
-    throw new Error("Policy #{name} not registered") if not policy?
     
     policy.perform(session, data, next)
