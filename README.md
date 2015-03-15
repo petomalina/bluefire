@@ -4,15 +4,13 @@ Lightweight TCP framework based on [node.js](http://nodejs.org/) and written in 
 
 ## Features
 
-- **Write once, run twice** - Client and server can be written in the Bluefire, while keeping configurations for packets and routes same on both sides.
+- **Simple to use** - Both, client and server can be written in the Bluefire, while keeping configurations for packets and routes same on both sides.
 
-- **Take what you need** - Whether you need a simple application(or prototype), or you want framework to make application more structured and less error-prone, you will have that. These two approaches can be also mixed together (see [examples](https://github.com/Gelidus/bluefire-examples))
+- **Flexible** - Whether you need a simple application(or prototype), or you want framework to make application more structured and less error-prone, bluefire can handle that. See [examples](https://github.com/Gelidus/bluefire-examples)) for more information.
 
-- **Manipulate with real objects, not buffers** - Whether you want to send or receive, you will never have to handle bytes. Construct real object, framework will handle everything else.
+- **Real world compatible** - Whether you want to send or receive data, you will never have to handle bytes. Construct real object, bluefire will handle everything else.
 
-- **Injections, injections everywhere** - Why should you globalize objects, when you can access them in cool way? [Core Services page](https://github.com/Gelidus/bluefire/wiki/Core-services) will provide you with more information.
-
-Feel free to vote on [Bluefire Trello](https://trello.com/b/tltmSctv/bluefire) for features you want to be in the framework first!
+- **Object oriented** - While focusing on object orientation, everything that can be object in bluefire, object is. This gives users flexibility and great ability to detect errors. You can also simply inject any service you want. [Core Services page](https://github.com/Gelidus/bluefire/wiki/Core-services) will provide you with more information.
 
 ## Installation [![npm version](https://badge.fury.io/js/bluefire.svg)](http://badge.fury.io/js/bluefire)[![Build Status](https://travis-ci.org/Gelidus/bluefire.svg?branch=master)](https://travis-ci.org/Gelidus/bluefire)
 
@@ -38,13 +36,11 @@ See [examples repository](https://github.com/Gelidus/bluefire-examples).
 
 Check [wiki](https://github.com/Gelidus/bluefire/wiki) for Bluefire API usage.
 
-## ORM/ODM Compatibility
-
-Check [wiki](https://github.com/Gelidus/bluefire/wiki/ORM-ODM-Compatibility) for ORM/ODM Compatibility.
-
 ## Contribute
 
 Any contributions to the project are welcome! See Issues or Future features to find out what you can do. Also feel free to contact [me](https://github.com/Gelidus) :)
+
+Feel free to vote on [Bluefire Trello](https://trello.com/b/tltmSctv/bluefire) for features you want to be in the framework first!
 
 Before trying to contribute, please read [Contribute to Bluefire](https://github.com/Gelidus/bluefire/wiki/Contribute-to-Bluefire)
 
