@@ -29,8 +29,26 @@ module.exports = class Session
     socket.getSession = () =>
       return @session
 
+  ### socket connection manipulation ###
   getSocket: () =>
     return @socket
+
+  ###
+    Closes the socket so no more IO will happen.
+    This will first end socket, and then destroy it.
+  ###
+  close: () =>
+    @end()
+    @socket.destroy() # this will also call close event
+
+  ###
+    Ends the socket, telling other side that no more info will be sent
+    from socket
+  ###
+  end: (data, encoding) =>
+    @socket.end(data, encoding)
+
+  ### Serializing and parsing ###
 
   ###
   @private
