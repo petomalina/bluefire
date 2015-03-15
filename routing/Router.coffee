@@ -1,3 +1,4 @@
+Async = require("async")
 
 ###
 Class that calls controllers and their actions that were previously loaded by
@@ -66,13 +67,19 @@ module.exports = class Router
   call: (packetName, session, data) =>
     if @paths[packetName]?
       path = @paths[packetName]
-
       controller = @controllers[path.controller] # get controller by given path
 
-      if not controller? # support for non-controller functions
-        path.action(session, data)
-      else
-        controller[path.action](session, data)
+      # check all policies here
+      Async.each path.policies, (policy, next) ->
+        policy.perform(session, data, next)
+      , (err) ->
+        # all policies were successfully "nexted"
+        return if err? # something happened during policy checking
+
+        if not controller? # support for non-controller functions
+          path.action(session, data)
+        else
+          controller[path.action](session, data)
 
   getController: (name) ->
     return @controllers[name]
