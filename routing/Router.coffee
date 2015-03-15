@@ -18,7 +18,7 @@ module.exports = class Router
     if Object.keys(@configuration.data).length > 0 # cont initialize paths if no paths are in data
       console.log 'Initializing paths ...'
       for code, path of @configuration.data
-        @route code, path.action, path.controller
+        @route code, path.action, path.controller, path.policies
 
       console.log 'Initializing needed controllers ...'
       for code, path of @paths
@@ -56,8 +56,10 @@ module.exports = class Router
   @param controller [String] name of controller to bind action to
   @param action [String] name of action for the controller
   ###
-  route: (packetName, action, controller = null) ->
-    @paths[packetName] = { action: action, controller: controller }
+  route: (packetName, action, controller = null, policies = []) ->
+    policies = Injector.getService("$policies")
+
+    @paths[packetName] = { action: action, controller: controller, policies: policies.get(policies) }
     if controller isnt null
       console.log 'New route registered: [' + controller + ']->' + action
 
