@@ -1,5 +1,5 @@
 FileLoader = require("../fileLoader")
-
+Policy = require("./Policy")
 
 module.exports = class PolicyManager
 
@@ -7,10 +7,17 @@ module.exports = class PolicyManager
     @policies = { }
   
   ###
-    @param name [String] name of policy to get
+    @param name [String|Array] name of policy to get
+    @returns [Policy|Array]
   ###
-  get: (name) =>
-    return @policies[name]
+  get: (names) =>
+    if typeof names is "string"
+      return @policies[names]
+    else
+      policies = []
+      policies.push(@get(policy)) for policy in names
+
+      return policies
 
   install: (callback, policiesFolder = "#{global.CurrentWorkingDirectory}/policies/") =>
     loader = new FileLoader
@@ -26,7 +33,7 @@ module.exports = class PolicyManager
       callback()
         
   policy: (name, check) =>
-    @policies[name] = check
+    @policies[name] = new Policy(name, check)
     
   ###
     @param name [String] name of policy to perform
@@ -38,4 +45,4 @@ module.exports = class PolicyManager
     policy = @get(name)
     throw new Error("Policy #{name} not registered") if not policy?
     
-    policy(session, data, next)
+    policy.perform(session, data, next)

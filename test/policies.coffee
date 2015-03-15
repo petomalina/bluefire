@@ -14,7 +14,7 @@ describe "Policies", () ->
         if session.auth is true
           next()
           
-      manager.get("auth")({ auth: true}, {}, done)
+      manager.get("auth").perform({ auth: true}, {}, done)
 
   describe "Policy Manager install", () ->
     manager = null
