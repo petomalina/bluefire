@@ -9,19 +9,23 @@ module.exports = class PolicyManager
   ###
     @param name [String] name of policy to get
   ###
-  get: (name) ->
+  get: (name) =>
     return @policies[name]
 
-  install: (callback, policiesFolder = "#{global.CurrentWorkingDirectory}/policies/") ->
+  install: (callback, policiesFolder = "#{global.CurrentWorkingDirectory}/policies/") =>
     loader = new FileLoader
     
     loader.find policiesFolder, (err, files) =>
       for moduleName in files
-        check = require(policiesFolder + module)
+        continue if /^\..*$/.test(moduleName) # continue if dot file (.gitkeep)
+
+        check = require(policiesFolder + moduleName)
         
         @policy(moduleName.split(".")[0], check)
+
+      callback()
         
-  policy: (name, check) ->
+  policy: (name, check) =>
     @policies[name] = check
     
   ###
@@ -30,7 +34,7 @@ module.exports = class PolicyManager
     @param data [Object] data on route
     @param next [Function] next thing to do
   ###
-  perform: (name, session, data, next) ->
+  perform: (name, session, data, next) =>
     policy = @get(name)
     throw new Error("Policy #{name} not registered") if not policy?
     
