@@ -1,3 +1,5 @@
+Git = require("machinepack-git")
+
 ###
   Parses given array of input arguments and recognizes commands,
   subcommands and switches with their values
@@ -28,7 +30,6 @@ parseArguments = (argv) ->
   return [ commands, switches ]
 
 FileSystem = require("fs")
-ncp = require("ncp").ncp # dir copy for project
 
 path = process.cwd() # get path
 [ commands, switches ] = parseArguments(process.argv.slice(2)) # get argument map
@@ -43,9 +44,16 @@ commandTable = {
       console.log(">> Given folder already exists!")
       return
 
-    ncp "#{__dirname}/project", projectPath, (error) ->
-      return console.log(error) if error
-      console.log("Project created!")
+    Git.clone({
+      dir: projectPath
+      remote: 'https://github.com/Gelidus/bluefire-generated-project.git'
+    }).exec({
+      error: (err) ->
+        console.log(">> We could not fetch the data from server #{err}")
+
+      success: (result) ->
+        console.log ">> Your project was successfully generated"
+    })
 }
 
 call = (currentCommand) ->
