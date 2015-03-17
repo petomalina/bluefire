@@ -65,11 +65,11 @@ module.exports = class Application extends Connection
           asyncCallback(err, 2)
 
       (asyncCallback) =>
-        @policyManager.install (err) ->
+        @services.install @configurations.get("connections"), @configurations.get("models"), (err) ->
           asyncCallback(err, 3)
 
       (asyncCallback) =>
-        @services.install @configurations.get("connections"), @configurations.get("models"), (err) ->
+        @policyManager.install (err) ->
           asyncCallback(err, 4)
 
       (asyncCallback) =>
