@@ -43,8 +43,9 @@ module.exports = class PolicyManager
     @param session [Session] session which is affected
     @param data [Object] data on route
     @param next [Function] next thing to do
+    @param policyName [String] name of the policy to be performed
   ###
-  perform: (name, session, data, next) =>
+  perform: (name, session, data, next, policyName) =>
     policy = @get(name)
     
-    policy.perform(session, data, next)
+    policy.perform(session, data, next, policyName)
