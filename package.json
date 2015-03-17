@@ -1,6 +1,6 @@
 {
   "name": "bluefire",
-  "version": "0.0.34a",
+  "version": "0.0.35a",
   "description": "Lightweight tcp framework",
   "main": "index.coffee",
   "scripts": {
@@ -27,6 +27,7 @@
   "dependencies": {
     "async": "~0.9.0",
     "coffee-script": "^1.9.0",
+    "machinepack-git": "^0.1.6",
     "ncp": "~1.0.1",
     "sails-disk": "^0.10.7",
     "waterline": "^0.10.18"
