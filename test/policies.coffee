@@ -10,11 +10,13 @@ describe "Policies", () ->
       manager = new Policies.Manager
       
     it "should try to add policy", (done) ->
-      manager.policy "auth", (session, data, next) ->
-        if session.auth is true
-          next()
+      manager.policy "auth", class MyPolicy
+
+        default: (session, data, next) ->
+          if session.auth is true
+            next()
           
-      manager.get("auth").perform({ auth: true}, {}, done)
+      manager.get("auth").perform({ auth: true }, {}, done)
 
   describe "Policy Manager install", () ->
     manager = null
