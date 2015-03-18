@@ -155,30 +155,12 @@ module.exports = class Connection extends EventEmitter
       @protocol.initializeSession(session) # initialize session for current protocol
 
       @emit("connect", session) # emit new connection
+      session.onConnect() if session.onConnect?
 
       socket.on "data", (buffer) =>
         @protocol.receive buffer, session, (data) =>
           @parser.parse data, (packetName, parsedData) =>
             @router.call packetName, session, parsedData
-            @onData(session, packetName, parsedData)
 
-      socket.on "disconnect", () =>
+      socket.on "close", () =>
         @removeSession(session) # remove current session from storage
-        socket.destroy()
-        @_onDisconnect session
-
-      socket.on "error", () =>
-        console.log "Error on socket, disconnecting ..."
-        socket.destroy()
-        @_onDisconnect session
-
-      @onConnect(session)
-
-  onConnect: (session) ->
-    # virtual method - override this when needed
-
-  _onDisconnect: (socket) ->
-    # virtual method - override this when needed
-
-  onData: (session, packetName, data) =>
-    # virtual method - override this when needed
