@@ -14,7 +14,13 @@
 @method #afterSend
   Called after sending packet (after #beforeSend)
   @param [String] name of the packet
-  @param [Byte Array] serialized data 
+  @param [Byte Array] serialized data
+
+@method #onConnect
+  Called when session connected
+
+@method #onDisconnect
+  Called when session disconnected
 ###
 module.exports = class Session
 
@@ -29,6 +35,10 @@ module.exports = class Session
     socket.session = @
     socket.getSession = () =>
       return @session
+
+    socket.on "close", () =>
+      @removeAllTasks()
+      @onDisconnect() if @onDisconnect?
 
   ### socket connection manipulation ###
   getSocket: () =>
@@ -49,7 +59,7 @@ module.exports = class Session
   end: (data, encoding) =>
     @socket.end(data, encoding)
 
-  ### Serializing and parsing ###
+  ### Serialization and parsing ###
 
   ###
   @private
@@ -96,3 +106,7 @@ module.exports = class Session
   removeAllTasks: () =>
     for name, task of @tasks
       @removeTask(name)
+
+  onConnect: () =>
+
+  onDisconnect: () =>
