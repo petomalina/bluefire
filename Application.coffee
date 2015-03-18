@@ -89,23 +89,3 @@ module.exports = class Application extends Connection
   ###
   config: (callback) =>
     Injector.inject(callback, @)
-  
-  onConnect: (session) ->
-    # virtual method - override this when needed
-
-  _onDisconnect: (session) ->
-    console.log "Client disconnected"
-    session.removeAllTasks() # remove all current tasks on the session
-    #@onDisconnect(session)
-
-  onDisconnect: (session) =>
-    # virtual method - override this when needed
-
-  _onData: (session, packetName, data) =>
-    @onData(session, packetName, data)
-
-  ###
-    @virtual
-  ###
-  onData: (session, packetName, data) =>
-    # virtual method - override this when needed
