@@ -21,6 +21,7 @@ module.exports = class Session
   constructor: () ->
     @socket = null
     @tasks = { }
+    @protocol = { }
 
   initialize: (socket, @parser) =>
     @socket = socket
