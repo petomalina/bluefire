@@ -29,6 +29,7 @@
     "coffee-script": "^1.9.0",
     "machinepack-git": "^0.1.6",
     "sails-disk": "^0.10.7",
+    "underscore": "^1.8.2",
     "waterline": "^0.10.18"
   },
   "devDependencies": {
