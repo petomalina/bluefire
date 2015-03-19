@@ -107,6 +107,6 @@ module.exports = class Session
     for name, task of @tasks
       @removeTask(name)
 
-  onConnect: () =>
+  onConnect: () ->
 
-  onDisconnect: () =>
+  onDisconnect: () ->
