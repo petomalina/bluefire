@@ -14,26 +14,9 @@ module.exports = class Services
   @param config [Configuration] current configuration for service manager
   
   @example Configuration for Service manager (configs/connections.coffee)
-    module.exports = {
-      Database: { # service name
-        module: 'sequelize' # module name of service
-        arguments: { # arguments to be passed to the service constructor
-          database: 'my_database'
-          username: 'root'
-          password: '1234'
-
-          options: {
-            dialest: 'postgres'
-            port: 5432
-          }
-        }
-
-        # optional callbacks
-        beforeCreate: (options, moduleArgs) ->
-
-        afterCreate: (service) ->
-         service.authenticate().complete(err) -> # authenticate sequelize
-           console.log err if err?
+    module.exports.connections = {
+      disk: {
+        adapter: "sails-disk"
       }
     }
   ###
