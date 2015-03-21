@@ -17,11 +17,9 @@ module.exports = class Router
 
   install: (@configuration, callback, controllersFolder = "#{global.CurrentWorkingDirectory}/controllers/") ->
     if Object.keys(@configuration.data).length > 0 # cont initialize paths if no paths are in data
-      console.log 'Initializing paths ...'
       for code, path of @configuration.data
         @route code, path.action, path.controller, path.policies
 
-      console.log 'Initializing needed controllers ...'
       for code, path of @paths
         if @controllers[path.controller]?
           continue # this controller already exists
@@ -30,7 +28,6 @@ module.exports = class Router
         controller = require(controllersFolder + path.controller)
 
         @controllers[path.controller] = Injector.create controller
-        console.log "New controller registered: [#{path.controller}]"
 
     callback(null, 3) if callback # only needed in async. This is synchronous
 
@@ -61,8 +58,6 @@ module.exports = class Router
     policies = Injector.getService("$policies")
 
     @paths[packetName] = { action: action, controller: controller, policies: policies.get(policies) }
-    if controller isnt null
-      console.log 'New route registered: [' + controller + ']->' + action
 
   call: (packetName, session, data) =>
     if @paths[packetName]?

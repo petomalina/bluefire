@@ -9,7 +9,6 @@ module.exports = class TCPConnector extends EventEmitter
     @connection = new TCP.Socket()
 
     @connection.on "error", (error) =>
-      #@emit("error", error.code)
       @running = false
 
   run: (port, address) ->

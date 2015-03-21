@@ -9,12 +9,9 @@ module.exports = class Protocol
   @param session [Session] a session to bind data to
   ###
   initializeSession: (session) ->
-    # properties for protocol
     # read means how many bytes we need to read from the stream to get full packet
-    # write means how many bytes we have in queue
     # traffic is packets per second
-    # loadBuffer is buffer that stores partial reads
-    # bufferLoader is the current index of the load in the loadBuffer
+    # packets are already received packets
     session.protocol = { read: 0, traffic: 0, packets: [] }
 
   ###
