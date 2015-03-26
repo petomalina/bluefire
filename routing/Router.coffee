@@ -55,9 +55,9 @@ module.exports = class Router
   @param action [String] name of action for the controller
   ###
   route: (packetName, action, controller = null, policies = []) ->
-    policies = Injector.getService("$policies")
+    policyManager = Injector.getService("$policies")
 
-    @paths[packetName] = { action: action, controller: controller, policies: policies.get(policies) }
+    @paths[packetName] = { action: action, controller: controller, policies: policyManager.get(policies) }
 
   call: (packetName, session, data) =>
     if @paths[packetName]?
