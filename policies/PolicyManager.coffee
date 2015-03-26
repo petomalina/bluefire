@@ -54,4 +54,4 @@ module.exports = class PolicyManager
   perform: (name, session, data, next, policyName) =>
     policy = @get(name)
     
-    policy.perform(session, data, next, policyName)
+    policy(session, data, next, policyName)
