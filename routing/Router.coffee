@@ -66,7 +66,7 @@ module.exports = class Router
 
       # check all policies here
       Async.each path.policies, (policy, next) ->
-        policy.perform(session, data, next)
+        policy(session, data, next)
       , (err) ->
         # all policies were successfully "nexted"
         return if err? # something happened during policy checking

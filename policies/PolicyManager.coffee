@@ -8,17 +8,23 @@ module.exports = class PolicyManager
   
   ###
     @param name [String|Array] name of policy to get
-    @returns [Policy|Array]
+    @returns [Function|Array]
   ###
   get: (names) =>
     if typeof names is "string"
-      throw new Error("Policy #{name} not registered") if not @policies[names]?
-      return @policies[names]
+      [policyClass, policyAction] = names.split(".")
+      policyAction = policyAction || "default"
+
+      throw new Error("Policy #{names} not registered") if not @policies[policyClass].instance[policyAction]?
+      return @policies[policyClass].instance[policyAction]
     else
       policies = []
       for policy in names
-        throw new Error("Policy #{name} not registered") if not policy?
-        policies.push(@get(policy))
+        [policyClass, policyAction] = policy.split(".")
+        policyAction = policyAction || "default"
+
+        throw new Error("Policy #{policy} not registered") if not @policies[policyClass].instance[policyAction]?
+        policies.push(@policies[policyClass].instance[policyAction])
 
       return policies
 
@@ -30,7 +36,7 @@ module.exports = class PolicyManager
         continue if /^\..*$/.test(moduleName) # continue if dot file (.gitkeep)
 
         check = require(policiesFolder + moduleName)
-        
+
         @policy(moduleName.split(".")[0], check)
 
       callback()
