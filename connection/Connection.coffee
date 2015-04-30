@@ -105,7 +105,7 @@ module.exports = class Connection extends EventEmitter
     @param address [String] address to connect to if is client
   ###
   run: (port = null, address = null) =>
-    
+
     if not @configuration? # repair missing configuration (no install)
       @configuration = new Configuration
 
@@ -163,4 +163,10 @@ module.exports = class Connection extends EventEmitter
             @router.call packetName, session, parsedData
 
       socket.on "close", () =>
+        @emit("close", session)
         @removeSession(session) # remove current session from storage
+
+      socket.on "error", () =>
+        @emit("error", session)
+        console.log("Unexpected error on connected socket, disconnecting")
+        @removeSession(session)

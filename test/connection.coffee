@@ -93,3 +93,27 @@ describe "Connection", () ->
 
 			connection.install config, routerConfig, (err, result) ->
 				done()
+
+
+	describe "Unexpected socket error", () ->
+		connection = null
+		socket = null
+
+		it "should construct server connection instance", () ->
+			connection = new Connection(true)
+			(connection?).should.be.true
+
+		it "should listen for the socket connection", (done) ->
+			connection.run(testingPort)
+
+			connection.on "error", () ->
+				connection.stop()
+
+			connection.on "close", () =>
+				#throw new Error("Connection should be handled by error, not close")
+				connection.stop()
+				done()
+
+			socket = new (require("net")).Socket()
+			socket.connect(testingPort, "127.0.0.1")
+			socket.end()
