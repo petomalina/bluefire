@@ -167,6 +167,5 @@ module.exports = class Connection extends EventEmitter
         @removeSession(session) # remove current session from storage
 
       socket.on "error", () =>
-        @emit("error", session)
         console.log("Unexpected error on connected socket, disconnecting")
         @removeSession(session)
