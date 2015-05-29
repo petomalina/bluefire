@@ -86,8 +86,7 @@ describe "Connection", () ->
 			(connection?).should.be.true
 
 		it "should correctly install packetbuddy from config", (done) ->
-			config = new Configuration
-			config.load("./configs/config.coffee")
+			config = new Configuration("#{__dirname}/project/configs/config.coffee")
 
 			routerConfig = new Configuration
 
