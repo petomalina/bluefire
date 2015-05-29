@@ -1,4 +1,4 @@
-FileLoader = require("../fileLoader")
+Include = require("include-all")
 Configuration = require("./Configuration")
 
 ###
@@ -9,33 +9,28 @@ module.exports = class ConfigurationManager
   constructor: (@baseDir) ->
     if not @baseDir?
       throw new Error("You must specify base directory in ConfigurationManager to correctly initialize it")
-    
+
     @configurations = { }
-    
+
   load: (callback) =>
-    fileIterator = new FileLoader
-    
-    fileIterator.find @baseDir, (err, files) =>
-      callback(err) if err?
-      
-      for file in files
-        continue if not /\w+\..+/.test(file) # ignore dot files
-        
-        configurationName = file.split('.')[0]
-        @configuration(@baseDir + configurationName, configurationName)
-        
-      callback(null)
-        
-  configuration: (module, name) =>
-    configuration = new Configuration(module)
-    configuration.load()
-      
-    @configurations[name] = configuration
-    
-    return configuration
-    
+    configs = Include({
+      dirname: @baseDir
+      filter: /(.*)\.(coffee|js)/
+      excludeDirs: /^\.(git|svn)$/
+    })
+
+    for name, config of configs
+      @configuration(name, config)
+
+    callback(null)
+
+  configuration: (name, module) =>
+    @configurations[name] = new Configuration(module)
+
+    return @configurations[name]
+
   get: (name) =>
     if not @configurations[name]?
       @configurations[name] = new Configuration # create new configuration so we can pass it
-    
+
     return @configurations[name]

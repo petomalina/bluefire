@@ -4,28 +4,19 @@ Class that loads the file and keeps the contents as configurations
 ###
 module.exports = class Configuration
 
-  constructor: (@moduleName = "") ->
-    @data = { }
+  constructor: (module = null) ->
+    if module? and typeof module is "object"
+      @data = module
+    else if typeof module is "string"
+      @data = require(module)
+    else
+      @data = { }
 
-  load: (moduleName = @moduleName) =>
-    try
-      if not moduleName? or moduleName is ""
-        throw new Error("Module to load not set!")
-
-      @moduleName = moduleName
-      file = require(moduleName)
-
-      for key, value of file
-        @data[key] = value
-
-    catch exception
-      @data = { } # null the data
-
-  add: (key, value) ->
+  add: (key, value) =>
     @data[key] = value
     return @data[key]
 
-  get: (key) ->
+  get: (key) =>
     return @data[key]
 
   remove: (key) ->
