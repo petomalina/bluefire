@@ -1,5 +1,5 @@
-FileLoader = require "../fileLoader"
-Task = require "./Task"
+Include = require("include-all")
+Task = require("./Task")
 
 ###
   Class that stores previously defined tasks. It also auto-loads all tasks
@@ -31,7 +31,7 @@ module.exports = class TaskManager
 
   ###
     Performs the task.
-  
+
     @param name [String] name of the task to be performed
     @param context [Object] context under which should be task pefrormed
   ###
@@ -45,15 +45,14 @@ module.exports = class TaskManager
     @param taskFOlder [String] Folder to look into for tasks
   ###
   install: (callback, taskFolder = "#{global.CurrentWorkingDirectory}/tasks/") =>
-    loader = new FileLoader()
 
-    loader.find taskFolder, (err, files) =>
-      for moduleName in files
-        # ignore modules that won't meet conditions
-        continue if not /(\w+(Task|Job))\..+/.test(moduleName)
+    tasks = Include({
+      dirname: global.CurrentWorkingDirectory + "/tasks"
+      filter: /(.*)(Job|Task)\.(coffee|js)/
+      excludeDirs: /^\.(git|svn)$/
+    })
 
-        taskOptions = require(taskFolder + moduleName)
-        # get task name by the name of the file without ending
-        @task(moduleName.split(".")[0], taskOptions.options, taskOptions.action)
+    for name, taskopts of tasks
+      @task(name, taskopts.options, taskopts.action)
 
       callback(null) if callback?
