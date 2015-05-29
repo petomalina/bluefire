@@ -1,4 +1,4 @@
-FileLoader = require("../fileLoader/FileLoader") # get the fileloader
+Include = require("include-all")
 Async = require("async")
 Waterline = require("waterline") # orm/odm support
 
@@ -12,7 +12,7 @@ module.exports = class Services
 
   ###
   @param config [Configuration] current configuration for service manager
-  
+
   @example Configuration for Service manager (configs/connections.coffee)
     module.exports.connections = {
       disk: {
@@ -86,17 +86,16 @@ module.exports = class Services
           Loads models information from models folder and adds them into collections
           information for waterlineOptions
         ###
-        fileLoader = new FileLoader
-        fileLoader.find modelsFolder, (err, files) =>
-          for moduleName in files
-            continue if /^\..*$/.test(moduleName)
+        models = Include({
+          dirname: modelsFolder
+          filter: /(.*)(Model|Entity)\.(coffee|js)/
+          excludeDirs: /^\.(git|svn)$/
+        })
 
-            model = require(modelsFolder + moduleName)
-            modelName = moduleName.split(".")[0];
+        for name, model of models
+          @model(name, model)
 
-            @model(modelName, model)
-
-          asyncCallback(null, 3)
+        asyncCallback(null, 3)
 
       (asyncCallback) =>
         ###
