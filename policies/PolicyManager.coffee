@@ -1,11 +1,11 @@
-FileLoader = require("../fileLoader")
+Include = require("include-all")
 Policy = require("./Policy")
 
 module.exports = class PolicyManager
 
   constructor: () ->
     @policies = { }
-  
+
   ###
     @param name [String|Array] name of policy to get
     @returns [Function|Array]
@@ -29,21 +29,20 @@ module.exports = class PolicyManager
       return policies
 
   install: (callback, policiesFolder = "#{global.CurrentWorkingDirectory}/policies/") =>
-    loader = new FileLoader
-    
-    loader.find policiesFolder, (err, files) =>
-      for moduleName in files
-        continue if /^\..*$/.test(moduleName) # continue if dot file (.gitkeep)
+    policies = Include({
+      dirname: policiesFolder
+      filter: /(.*)\.(coffee|js)/
+      excludeDirs: /^\.(git|svn)$/
+    })
 
-        check = require(policiesFolder + moduleName)
+    for name, policy of policies
+      @policy(name, policy)
 
-        @policy(moduleName.split(".")[0], check)
+    callback()
 
-      callback()
-        
   policy: (name, check) =>
     @policies[name] = new Policy(name, check)
-    
+
   ###
     @param name [String] name of policy to perform
     @param session [Session] session which is affected
@@ -53,5 +52,5 @@ module.exports = class PolicyManager
   ###
   perform: (name, session, data, next, policyName) =>
     policy = @get(name)
-    
+
     policy(session, data, next, policyName)

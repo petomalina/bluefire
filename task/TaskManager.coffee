@@ -52,8 +52,6 @@ module.exports = class TaskManager
       excludeDirs: /^\.(git|svn)$/
     })
 
-    console.dir tasks
-
     for name, taskopts of tasks
       @task(name, taskopts.options, taskopts.action)
 
