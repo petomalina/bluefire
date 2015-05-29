@@ -47,10 +47,12 @@ module.exports = class TaskManager
   install: (callback, taskFolder = "#{global.CurrentWorkingDirectory}/tasks/") =>
 
     tasks = Include({
-      dirname: global.CurrentWorkingDirectory + "/tasks"
+      dirname: taskFolder
       filter: /(.*)(Job|Task)\.(coffee|js)/
       excludeDirs: /^\.(git|svn)$/
     })
+
+    console.dir tasks
 
     for name, taskopts of tasks
       @task(name, taskopts.options, taskopts.action)

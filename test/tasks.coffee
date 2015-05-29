@@ -51,8 +51,8 @@ describe "TaskManager", () ->
       (manager.get("MyHelper")?).should.be.false
 
     it "should check for tasks that should be registered", () ->
-      (manager.get("MyTask")?).should.be.true
-      (manager.get("SecondJob")?).should.be.true
+      (manager.get("My")?).should.be.true
+      (manager.get("Second")?).should.be.true
 
     it "should try to perform task from install", (done) ->
       manager.task "DoneTask", { }, (context) ->
