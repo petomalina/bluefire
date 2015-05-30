@@ -1,6 +1,6 @@
 global.CurrentWorkingDirectory = process.cwd() # set current dit to global for easy pathing
 
-DependencyInjector = require("./di/Injector")
+DependencyInjector = require("ghost-inject")
 
 Async = require("async")
 Configuration = require("./config").Configuration
@@ -20,13 +20,13 @@ module.exports = class Application extends Connection
 
   ###
     Creates just basic applicatin with parser and tcp setup
-    
+
     @param options [Object] an object of options
   ###
   constructor: (options = { }) ->
     options.isServer = if options.isServer is null then true else options.isServer
     options.configurations = options.configurations || "#{global.CurrentWorkingDirectory}/configs/"
-    
+
     global.Injector = new DependencyInjector #establish injector
     @configurations = new ConfigurationManager(options.configurations)
 
@@ -59,7 +59,7 @@ module.exports = class Application extends Connection
       (asyncCallback) =>
         @configurations.load (err) ->
           asyncCallback(err, 1)
-      
+
       (asyncCallback) =>
         @taskManager.install (err) ->
           asyncCallback(err, 2)
@@ -88,4 +88,4 @@ module.exports = class Application extends Connection
         # see documentation for injectable application modules to access API
   ###
   config: (callback) =>
-    Injector.inject(callback, @)
+    Injector.call(callback, @)
