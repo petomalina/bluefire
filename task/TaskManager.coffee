@@ -55,4 +55,4 @@ module.exports = class TaskManager
     for name, taskopts of tasks
       @task(name, taskopts.options, taskopts.action)
 
-      callback(null) if callback?
+    callback(null) if callback?
