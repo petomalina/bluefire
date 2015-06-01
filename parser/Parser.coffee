@@ -1,4 +1,5 @@
-Packet = require('./Packet')
+Promise = require("promise")
+Packet = require("./Packet")
 
 module.exports = class Parser
 
@@ -39,7 +40,7 @@ module.exports = class Parser
   Registers packet by given name, location and condition
   ###
   registerPacket: (packet, isServerPacket, condition = null) =>
-    
+
     if isServerPacket # switch between server and client packets
       @serverPackets[packet.name] = packet
     else
@@ -96,33 +97,34 @@ module.exports = class Parser
   @param callback [Function(name,data)] callback to be called after parse
   @param packetname [String] optional packet name if already known
   ###
-  parse: (buffer, callback, packetName = null) =>
-    parsedData = { }
-    head = @getHead()
-    index = 0 # current byte index for parser
+  parse: (buffer, packetName = null) =>
+    return new Promise (fulfill, reject) =>
+      parsedData = { }
+      head = @getHead()
+      index = 0 # current byte index for parser
 
-    # read whole head
-    for parser in head.packetParseData
-      name = parser["name"]
-      read = parser["read"]
+      # read whole head
+      for parser in head.packetParseData
+        name = parser["name"]
+        read = parser["read"]
 
-      [parsedData[name], index] = read(buffer, index)
+        [parsedData[name], index] = read(buffer, index)
 
-    # parse packets that are oposite
-    name = if packetName? then packetName else @packetConditions[parsedData[@conditionField]]
-    packet = @getPacket(name, !@isServer)
+      # parse packets that are oposite
+      name = if packetName? then packetName else @packetConditions[parsedData[@conditionField]]
+      packet = @getPacket(name, !@isServer)
 
-    if not packet?
-      callback(null, null)
-      return
+      if not packet?
+        reject(new Error("Packet not found"))
+        return
 
-    for parser in packet.packetParseData
-      name = parser["name"]
-      read = parser["read"]
+      for parser in packet.packetParseData
+        name = parser["name"]
+        read = parser["read"]
 
-      [parsedData[name], index] = read(buffer, index)
+        [parsedData[name], index] = read(buffer, index)
 
-    callback(packet.name, parsedData)
+      fulfill({name: packet.name, data: parsedData})
 
   ###
   Creates byte buffer that can be passed right into socket with current
@@ -136,24 +138,25 @@ module.exports = class Parser
     serialize { myInt : 5}, 'myPacket', (buffer) ->
       #send buffer or do something else
   ###
-  serialize: (data, packetName, callback) =>
-    # serialize packets from this side
-    packet = @getPacket(packetName, @isServer)
-    bufferArray = []
+  serialize: (data, packetName) =>
+    return new Promise (fulfill, reject) =>
+      # serialize packets from this side
+      packet = @getPacket(packetName, @isServer)
+      bufferArray = []
 
-    for parser in packet.head.packetParseData
-      name = parser['name']
-      write = parser['write']
+      for parser in packet.head.packetParseData
+        name = parser['name']
+        write = parser['write']
 
-      data[name] = packet.predefinedValues[name] if not data[name]? and packet.predefinedValues[name]?
-      bufferArray.push(write(data[name]))
+        data[name] = packet.predefinedValues[name] if not data[name]? and packet.predefinedValues[name]?
+        bufferArray.push(write(data[name]))
 
-    for parser in packet.packetParseData
-      name = parser['name']
-      write = parser['write']
+      for parser in packet.packetParseData
+        name = parser['name']
+        write = parser['write']
 
-      data[name] = packet.predefinedValues[name] if not data[name]? and packet.predefinedValues[name]?
+        data[name] = packet.predefinedValues[name] if not data[name]? and packet.predefinedValues[name]?
 
-      bufferArray.push(write(data[name]))
+        bufferArray.push(write(data[name]))
 
-    callback(Buffer.concat(bufferArray)) # glue up whole array of buffers
+      fulfill(Buffer.concat(bufferArray)) # glue up whole array of buffers

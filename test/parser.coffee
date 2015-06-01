@@ -36,7 +36,7 @@ describe "Packet", () ->
 
       packet.packetParseData[1].should.be.ok
       packet.packetParseData[1].name.should.be.eql("string")
-  
+
   describe "Parser construction", () ->
     parser = new Parser(true) # is server parser
     parser.initialize()
@@ -54,14 +54,14 @@ describe "Packet", () ->
       Object.keys(parser.serverPackets).length.should.be.eql(1)
 
     it "should serialize and parse packet", (done) ->
-      parser.serialize {
+      parser.serialize({
         data: 5
         string: "abc"
-      }, "name", (serialized) ->
-        parser.parse serialized, (name, data) ->
-          "name".should.be.eql(name)
-          data["string"].should.be.eql("abc")
-          data["data"].should.be.eql(5)
+      }, "name").then (serialized) ->
+        parser.parse(serialized).then (packet) ->
+          "name".should.be.eql(packet.name)
+          packet.data["string"].should.be.eql("abc")
+          packet.data["data"].should.be.eql(5)
           done()
 
   describe "Advanced tests of packet and parser", () ->
@@ -90,22 +90,22 @@ describe "Packet", () ->
 
       (parser.getPacket("arrayone")?).should.be.true # existence check
 
-      parser.serialize {
+      parser.serialize({
         #opcode: 0
         numbers: [1, 2, 3, 4]
-      }, "arrayone", (serialized) ->
-        parser.parse serialized, (name, data) ->
-          (data?).should.be.true
-          data.opcode.should.be.eql(0)
-          data.numbers.should.be.eql([1,2,3,4])
+      }, "arrayone").then (serialized) ->
+        parser.parse(serialized).then (packet) ->
+          (packet?).should.be.true
+          packet.data.opcode.should.be.eql(0)
+          packet.data.numbers.should.be.eql([1,2,3,4])
           done()
 
     it "should try to serialize and parse second array packet", (done) ->
 
-      parser.serialize {
+      parser.serialize({
         #opcode: 1
         numbers: [9, 2, 1, 4, 3, 6]
-      }, "arraytwo", (serialized) ->
+      }, "arraytwo").then (serialized) ->
         done()
 
   describe "Advanced #add() method packet tests", () ->
@@ -149,13 +149,13 @@ describe "Packet", () ->
       parser.registerPacket(firstPacket, false, 0) # client packet
       parser.registerPacket(firstPacket, true, 0) # server packet
 
-      parser.serialize {
+      parser.serialize({
         something: 12
         int: 1800
-      }, "firstPacket", (serialized) ->
-        parser.parse serialized, (name, data) ->
-          (data?).should.be.true
-          data["opcode"].should.be.eql(0)
-          data["something"].should.be.eql(12)
-          data["int"].should.be.eql(1800)
+      }, "firstPacket").then (serialized) ->
+        parser.parse(serialized).then (packet) ->
+          (packet?).should.be.true
+          packet.data["opcode"].should.be.eql(0)
+          packet.data["something"].should.be.eql(12)
+          packet.data["int"].should.be.eql(1800)
           done()
