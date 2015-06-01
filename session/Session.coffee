@@ -79,7 +79,7 @@ module.exports = class Session
   send: (packetName, data = { }, callback) =>
     @beforeSerialize packetName, data if @beforeSerialize?
 
-    @parser.serialize data, packetName, (serialized) =>
+    @parser.serialize(data, packetName).then (serialized) =>
       @beforeSend packetName, data, serialized if @beforeSend? # send non serialized and serialized data
 
       Injector.getService("$protocol").send(serialized, @)

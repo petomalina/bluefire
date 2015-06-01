@@ -159,8 +159,8 @@ module.exports = class Connection extends EventEmitter
 
       socket.on "data", (buffer) =>
         @protocol.receive buffer, session, (data) =>
-          @parser.parse data, (packetName, parsedData) =>
-            @router.call packetName, session, parsedData
+          @parser.parse(data).then (packet) =>
+            @router.call(packet.name, session, packet.data)
 
       socket.on "close", () =>
         @emit("close", session)
