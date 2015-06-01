@@ -1,11 +1,11 @@
 global.CurrentWorkingDirectory = process.cwd() # set current dit to global for easy pathing
 
+Promise = require("promise")
 DependencyInjector = require("ghost-inject")
-
 Async = require("async")
+
 Configuration = require("./config").Configuration
 ConfigurationManager = require("./config").ConfigurationManager
-
 Services = require("./services/Services")
 TaskManager = require("./task/TaskManager")
 PolicyManager = require("./policies/PolicyManager")
@@ -47,35 +47,36 @@ module.exports = class Application extends Connection
 
     @param callback [Function] function to be called after install
   ###
-  install: (callback) =>
-    if @configurations.get("config").get("environment") is "dev"
-      global.debug = (debugText) ->
-        console.log debugText
-    else
-      global.debug = () ->
-        # nothing here
+  install: () =>
+    return new Promise (fulfill, reject) =>
+      if @configurations.get("config").get("environment") is "dev"
+        global.debug = (debugText) ->
+          console.log debugText
+      else
+        global.debug = () ->
+          # nothing here
 
-    Async.series([
-      (asyncCallback) =>
-        @configurations.load (err) ->
-          asyncCallback(err, 1)
+      Async.series([
+        (asyncCallback) =>
+          @configurations.load (err) ->
+            asyncCallback(err, 1)
 
-      (asyncCallback) =>
-        @taskManager.install (err) ->
-          asyncCallback(err, 2)
+        (asyncCallback) =>
+          @taskManager.install (err) ->
+            asyncCallback(err, 2)
 
-      (asyncCallback) =>
-        @services.install @configurations.get("connections"), @configurations.get("models"), (err) ->
-          asyncCallback(err, 3)
+        (asyncCallback) =>
+          @services.install @configurations.get("connections"), @configurations.get("models"), (err) ->
+            asyncCallback(err, 3)
 
-      (asyncCallback) =>
-        @policyManager.install (err) ->
-          asyncCallback(err, 4)
+        (asyncCallback) =>
+          @policyManager.install (err) ->
+            asyncCallback(err, 4)
 
-      (asyncCallback) =>
-        super @configurations.get("config"), @configurations.get("routes"), (err) -> # call server install
-          asyncCallback(err, 5)
-    ], callback)
+        (asyncCallback) =>
+          super @configurations.get("config"), @configurations.get("routes"), (err) -> # call server install
+            asyncCallback(err, 5)
+      ], fulfill)
 
   ###
     Configurate the application. All currently injectable items will be injected
