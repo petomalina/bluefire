@@ -119,20 +119,6 @@ module.exports = class Connection extends EventEmitter
 
     @connection.run(runOptions...)
 
-    #console.log "Running console commander \n"
-
-    ###process.stdin.setEncoding("utf8")
-
-    # look for readable
-    process.stdin.on "readable", () ->
-      chunk = process.stdin.read()
-      if chunk isnt null
-        process.stdout.write("data: " + chunk)
-
-    # end commander at the end
-    process.stdin.on "end", () ->
-      process.stdout.write("Console commander exited")###
-
   ###
     Stops current connection system, disabling it to send or receive
     data. Connection must be then established once more to get working
@@ -142,7 +128,10 @@ module.exports = class Connection extends EventEmitter
 
   removeSession: (session) =>
     index = @sessionStorage.indexOf(session)
-    @sessionStorage.splice(index, 1) if index isnt -1
+    if index isnt -1
+      @sessionStorage.splice(index, 1)
+    else
+      console.log("Cannot remove given session, possible leak!")
 
   _onConnect: (socket) =>
     do (socket) =>
@@ -163,8 +152,11 @@ module.exports = class Connection extends EventEmitter
             @router.call(packet.name, session, packet.data)
 
       socket.on "close", () =>
-        @emit("close", session)
+        session.removeAllTasks()
         @removeSession(session) # remove current session from storage
+
+        session.onDisconnect()
+        @emit("close", session)
 
       socket.on "error", () =>
         console.log("Unexpected error on connected socket, disconnecting")

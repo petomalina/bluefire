@@ -7,7 +7,7 @@ testingPort = 9999
 describe "Application", () ->
   server = null
   client = null
-  
+
   # configuration folder should be now passed into the application in constructor
   configs = "#{__dirname}/project/configs/"
 
@@ -23,7 +23,7 @@ describe "Application", () ->
     it "should construct the client instance without any errors", () ->
       client = new ClientApplication(configs)
 
-  describe "simple application test", () ->
+  describe "Simple application test", () ->
     it "should connect server and client to each other", (done) ->
       server = new ServerApplication(configs)
       client = new ClientApplication(configs)
@@ -33,6 +33,21 @@ describe "Application", () ->
           client.stop()
           server.stop()
           done()
+
+      server.run(testingPort)
+      client.run(testingPort, "127.0.0.1")
+
+  describe "Simple disconnect test", () ->
+    it "should connect, disconnect with successful clean of session", (done) ->
+      server = new ServerApplication(configs)
+      client = new ClientApplication(configs)
+
+      server.config ($connection) ->
+        $connection.on "connect", (session) ->
+          session.onDisconnect = () ->
+            $connection.sessionStorage.should.be.eql([])
+            done()
+          session.close()
 
       server.run(testingPort)
       client.run(testingPort, "127.0.0.1")
@@ -58,10 +73,10 @@ describe "Application", () ->
           server.stop()
           client.stop()
           done()
-        
+
         # run after configuration is done, as it may in some time be asynchronous
         server.run(testingPort)
-      
+
       # due to injections, this must be initialized after first one is configured
       client = new ClientApplication(configs)
 
@@ -79,6 +94,6 @@ describe "Application", () ->
           session.send "Ping", {
             value: "abc"
           }
-          
+
         # run after configuration is done, as it may in some time be asynchronous
         client.run(testingPort, "127.0.0.1")

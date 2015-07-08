@@ -36,10 +36,6 @@ module.exports = class Session
     socket.getSession = () =>
       return @session
 
-    socket.on "close", () =>
-      @removeAllTasks()
-      @onDisconnect() if @onDisconnect?
-
   ### socket connection manipulation ###
   getSocket: () =>
     return @socket
